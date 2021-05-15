@@ -1,4 +1,5 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/build/three.module.js';
+import {OBJLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/loaders/OBJLoader.js';
 
 function main() {
   const canvas = document.querySelector('#c');
@@ -33,6 +34,11 @@ function main() {
   const solarSystem = new THREE.Object3D();
   scene.add(solarSystem);
   objects.push(solarSystem);
+
+  // const objLoader = new OBJLoader();
+  // objLoader.load('./../blender models/scrat-ice-age.obj', (root) => {
+  //   scene.add(root);
+  // });
 
   const sunMaterial = new THREE.MeshPhongMaterial({emissive: 0xFFFF00});
   const sunMesh = new THREE.Mesh(sphereGeometry, sunMaterial);
