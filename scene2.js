@@ -13,10 +13,15 @@ const fov = 50;
 const aspect = 2;  // the canvas default
 const near = 0.1;
 const far = 1000;
-const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-camera.position.set(0, -400, 600);
-camera.up.set(0, 0, 1);
-camera.lookAt(0, 0, 0);
+const cameraDrone = new THREE.PerspectiveCamera(fov, aspect, near, far);
+cameraDrone.position.set(0, -400, 600);
+cameraDrone.up.set(0, 0, 1);
+cameraDrone.lookAt(0, 0, 0);
+
+const cameraFixed = new THREE.PerspectiveCamera(fov, aspect, near, far);
+cameraFixed.position.set(0, -400, 600);
+cameraFixed.up.set(0, 0, 1);
+cameraFixed.lookAt(0, 0, 0);
 
 const objects = [];
 
@@ -97,11 +102,11 @@ function render()
 	if (resizeRendererToDisplaySize(renderer)) 
 	{
 		  const canvas = renderer.domElement;
-		  camera.aspect = canvas.clientWidth / canvas.clientHeight;
-		  camera.updateProjectionMatrix();
+		  cameraDrone.aspect = canvas.clientWidth / canvas.clientHeight;
+		  cameraDrone.updateProjectionMatrix();
 	}
 	
-		renderer.render(scene, camera);
+		renderer.render(scene, cameraDrone);
 	
 }
 

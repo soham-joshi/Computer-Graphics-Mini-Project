@@ -1,44 +1,24 @@
 import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/build/three.module.js';
 import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/controls/OrbitControls.js';
 import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/loaders/GLTFLoader.js';
-import { vec3, mat4 } from 'https://cdn.skypack.dev/gl-matrix';
-
 const canvas = document.querySelector('#c');
 const renderer = new THREE.WebGLRenderer({canvas});
 
-class carClass
-{
-constructor(x,y,z)
-  {
-  
-  }
-}
+
 
 var collidableMeshList = [];
-var camera_mode=0; 
+
 const scene = new THREE.Scene();
 
 const fov = 50;
 const aspect = 2;  // the canvas default
 const near = 0.1;
-const far = 10000;
-//Drone Camera
-const cameraDrone = new THREE.PerspectiveCamera(fov, aspect, near, far);
-cameraDrone.position.set(0, -400, 600);
-cameraDrone.up.set(0, 0, 1);
-cameraDrone.lookAt(0, 0, 0);
-const controls = new OrbitControls(cameraDrone, canvas);
-//Fixed Camera
-const cameraFixed = new THREE.PerspectiveCamera(fov, aspect, near, far);
-cameraFixed.position.set(100, 400, 600);
-cameraFixed.up.set(0, 0, 1);
-cameraFixed.lookAt(0, 0, 0);
-//Avatar Camera
-const cameraAvatar = new THREE.PerspectiveCamera(fov, aspect, near, far);
-cameraAvatar.position.set(100, 400, 600 );
-cameraAvatar.up.set(0, 0, 1);
-cameraAvatar.lookAt(100, 0, 0);
-
+const far = 1000;
+const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+camera.position.set(0, -400, 600);
+camera.up.set(0, 0, 1);
+camera.lookAt(0, 0, 0);
+const controls = new OrbitControls(camera, canvas);
 controls.enableKeys = false;
 controls.target.set(0, 5, 0);
 controls.update();
@@ -121,15 +101,10 @@ function addLight(...pos) {
       root.scale.x =15;
       root.scale.y =15;
       root.scale.z =15;
-      root.translateX(100);
       root.rotation.x = 5*3.14159 / 2;
       avatar = root;
       scene.add(root);
       objects.push(avatar);
-    // const cameraAvatar = new THREE.PerspectiveCamera(fov, aspect, near, far);
-    cameraAvatar.position.set(avatar.getWorldPosition );
-    cameraAvatar.up.set(0, 0, 1);
-    cameraAvatar.lookAt(100, 0, 0);
     //   const box = new THREE.Box3().setFromObject(root);
 
     //   const boxSize = box.getSize(new THREE.Vector3()).length();
@@ -156,23 +131,18 @@ function addLight(...pos) {
       // scene.add(root);
       const loadedCars = root.getObjectByName('Cars');
       const fixes = [
-        { prefix: 'Car_08', x:-100, y: -100,  rot: [0, 0, 0 ], },
-        { prefix: 'CAR_03', x:-200,y: 100, z:-200, rot: [0, 0, 0], },
-        { prefix: 'Car_04', x:100,y: 40, rot: [0, 0, 0], },
+        { prefix: 'Car_08', x:-100, y: -100,  rot: [Math.PI, 2*Math.PI, 2*Math.PI ], },
+        { prefix: 'CAR_03', x:-200,y: 100, z:-200, rot: [0, Math.PI, 0], },
+        { prefix: 'Car_04', x:100,y: 40, rot: [0, Math.PI, 0], },
       ];
       
-    var carX=[10,10,10];
-    var carY=[100,0,0];
-    var carZ=[0,100,0];
-    var index=0;
+
       root.updateMatrixWorld();
       for (const car of loadedCars.children.slice()) {
         const fix = fixes.find(fix => car.name.startsWith(fix.prefix));
         const obj = new THREE.Object3D();
-        car.position.set(carX[index], carY[index], carZ[index]);
-        index=index+1;
+        car.position.set(0, fix.y, 0);
         car.rotation.set(...fix.rot);
-        car.rotateX(Math.PI/2)
         obj.add(car);
         // car.rotation.x = 5*3.14159 / 2;
         scene.add(obj);
@@ -201,9 +171,9 @@ function addLight(...pos) {
 
       root.updateMatrixWorld();
       for (const light of loadedLights.children.slice()) {
-        // console.log("lightt", light);
+        console.log("lightt", light);
         const fix = fixes1.find(fix => light.name.startsWith(fix.prefix));
-        // console.log("fixxx", fix);
+        console.log("fixxx", fix);
         const obj = new THREE.Object3D();
         // light.position.set(0, fix.y, 0);
         // light.rotation.set(...fix.rot);
@@ -238,9 +208,9 @@ function addLight(...pos) {
 
       root.updateMatrixWorld();
       for (const road of loadedRoad.children.slice()) {
-        // console.log("roaddd", road);
+        console.log("roaddd", road);
         const fix = fixes1.find(fix => road.name.startsWith(fix.prefix));
-        // console.log("fixxx", fix);
+        console.log("fixxx", fix);
         const obj = new THREE.Object3D();
         // road.position.set(0, fix.y, 0);
         // road.rotation.set(...fix.rot);
@@ -362,11 +332,7 @@ window.addEventListener("keydown", function(eee){
         }
         
         break;
-      
-      case 67:  // Near 
-          camera_mode=camera_mode+1;
-          camera_mode=camera_mode%3;
-      break;
+
       case 40:  // Near 
             avatar.translateZ(5);
             console.log("pos", avatar.position);
@@ -404,15 +370,10 @@ window.addEventListener("keydown", function(eee){
 
 
 });
-
-var postitionVector= new THREE.Vector3();
-var AvatarZ= new THREE.Vector3();
-var AvatarLookAt= new THREE.Vector3();
-var AvatarQuaternion =avatar.quaternion;
+        
 
 function animate()
 {
-  // console.log(cameraAvatar);
     requestAnimationFrame( animate );
     render();		
     update();
@@ -421,53 +382,14 @@ function animate()
 
 function render()
 {
-
 	if (resizeRendererToDisplaySize(renderer)) 
 	{
 		  const canvas = renderer.domElement;
-      if (canvas_mode==1)
-        {
-          console.log("In the second camera condtion");
-		    cameraDrone.aspect = canvas.clientWidth / canvas.clientHeight;
-		    cameraDrone.updateProjectionMatrix();
-        }
-      else if (canvas_mode==2)
-        {
-        console.log("In the third camera condtion");
-		    cameraAvatar.aspect = canvas.clientWidth / canvas.clientHeight;
-        postitionVector= avatar.getWorldPositio(AvatarZ);
-        console.log(postitionVector[0],postitionVector[1],postitionVector[2]);
-        console.log(cameraAvatar);
-
-		    cameraAvatar.position.set(postitionVectors);
-        }
-  }
-    if (camera_mode==1)
-      {
-		  renderer.render(scene, cameraDrone);
-      }
-    else if (camera_mode==0) 
-      {
-      renderer.render(scene, cameraFixed);
-      }
-    else
-      {
-        console.log("In the third camera condtion");
-        avatar.getWorldPosition(postitionVector);
-        console.log(postitionVector.x);
-        AvatarLookAt.x=postitionVector.x;
-        AvatarLookAt.y=postitionVector.y+100;
-        AvatarLookAt.z=postitionVector.z+25;
-        console.log()
-        console.log(AvatarQuaternion);
-        // AvatarLookAt.applyQuaternion(avatar.quaternion);
-        console.log(postitionVector);
-        console.log(AvatarLookAt);
-		    cameraAvatar.position.set(postitionVector.x,postitionVector.y,postitionVector.z);
-        cameraAvatar.up.set(0, 0, 1);
-        cameraAvatar.lookAt(AvatarLookAt.x,AvatarLookAt.y, AvatarLookAt.z);
-      renderer.render(scene, cameraAvatar);
-      }
+		  camera.aspect = canvas.clientWidth / canvas.clientHeight;
+		  camera.updateProjectionMatrix();
+	}
+	
+		renderer.render(scene, camera);
 	
 }
 
