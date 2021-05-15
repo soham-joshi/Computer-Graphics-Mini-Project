@@ -27,7 +27,7 @@ const objects = [];
 
 // Ground
 var plane_geometry = new THREE.PlaneGeometry( 1000, 1000, 1, 1 );
-var ground_material = new THREE.MeshBasicMaterial( { color: 0x00f2ff } );
+var ground_material = new THREE.MeshBasicMaterial( { color: 0x402A2A } );
 var ground_mesh = new THREE.Mesh( plane_geometry, ground_material );
 ground_mesh.material.side = THREE.DoubleSide;
 // ground_mesh.rotation.z = 3.14/2;
@@ -170,7 +170,7 @@ function addLight(...pos) {
       const loadedLights = root.getObjectByName('Lights');
       const fixes1 = [
         { prefix: 'traffic_light', x:-100, y: -100,  rot: [Math.PI/2, 3*Math.PI/2, Math.PI/2 ], },
-        { prefix: 'Light_3', x:-200,y: 100, z:-200, rot: [Math.PI/2, Math.PI, Math.PI/2], },
+        { prefix: 'Light_3', x:-200,y: 100, z:-200, rot: [Math.PI/2, -Math.PI, Math.PI/2], },
         { prefix: 'Light_2', x:100,y: 40, rot: [0, -3*Math.PI/2, Math.PI/2], },
       ];
       
@@ -198,10 +198,26 @@ function addLight(...pos) {
         lights.push(obj);
       }
     });
-    // var spotlight = new THREE.SpotLight(0xffffff);
-    //   spotlight.position.set(x,y,z);
-    //   spotlight.lookAt(p,q,r);
-    //   scene.add(spotlight);
+    const spotLight = new THREE.SpotLight( 0xFFFFFF);
+    spotLight.position.set( -100, 200,100 );
+
+    spotLight.castShadow = true;
+    const targetObject = new THREE.Object3D();
+    scene.add(targetObject);
+    targetObject.translateX(-100);
+    targetObject.translateY(200);
+    targetObject.translateZ(0)
+    spotLight.target = targetObject;
+    
+    spotLight.shadow.mapSize.width = 1024;
+    spotLight.shadow.mapSize.height = 1024;
+
+    spotLight.shadow.camera.near = 500;
+    spotLight.shadow.camera.far = 4000;
+    spotLight.shadow.camera.fov = 30;
+
+scene.add( spotLight );
+
     const roads = [];
     const url3 = 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf';
     gltfLoader.load(url3, (gltf3) => {
