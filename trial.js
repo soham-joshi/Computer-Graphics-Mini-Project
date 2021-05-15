@@ -1,6 +1,4 @@
 import {OBJLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/loaders/OBJLoader.js';
-import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/build/three.module.js';
-// import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/loaders/GLTFLoader.js';
 // import {OBJLoader} from './resources/threejs/r127/examples/jsm/loaders/OBJLoader.js';
 var renderer;
 var scene;
