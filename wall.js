@@ -14,6 +14,9 @@ constructor(x,y,z)
   }
 }
 
+var AvatarQuaternion = new THREE.Quaternion();
+// var AvatarEuler= new THREE.Euler( 0, 1, 1.57, 'XYZ' );
+
 var collidableMeshList = [];
 var camera_mode=0; 
 const scene = new THREE.Scene();
@@ -126,6 +129,13 @@ function addLight(...pos) {
       avatar = root;
       scene.add(root);
       objects.push(avatar);
+
+      AvatarEuler.copy(avatar.rotation);
+      console.log(AvatarEuler);
+      AvatarQuaternion.set(avatar.quaternion._x,avatar.quaternion.y,avatar.quaternion.z,avatar.quaternion.w);
+      console.log(avatar.quaternion);
+      console.log(AvatarQuaternion)
+
     // const cameraAvatar = new THREE.PerspectiveCamera(fov, aspect, near, far);
     cameraAvatar.position.set(avatar.getWorldPosition );
     cameraAvatar.up.set(0, 0, 1);
@@ -354,6 +364,7 @@ window.addEventListener("keydown", function(eee){
       case 39: // Right
         avatar.translateX(5);
         console.log("pos", avatar.position);
+        console.log("camera look at Pos", AvatarLookAt);
         
         // BB check
         if(check_collision())
@@ -362,7 +373,9 @@ window.addEventListener("keydown", function(eee){
         }
         
         break;
-      
+      case 82:
+        avatar.rotateOnAxis(new THREE.Vector3( 0, 1, 0 ),0.01);
+      break;
       case 67:  // Near 
           camera_mode=camera_mode+1;
           camera_mode=camera_mode%3;
@@ -408,7 +421,14 @@ window.addEventListener("keydown", function(eee){
 var postitionVector= new THREE.Vector3();
 var AvatarZ= new THREE.Vector3();
 var AvatarLookAt= new THREE.Vector3();
-var AvatarQuaternion =avatar.quaternion;
+
+
+console.log(avatar.quaternion);
+// AvatarQuaternion=avatar.quaternion.clone();
+// AvatarQuaternion.x =avatar.quaternion.x;
+// AvatarQuaternion._y =avatar.quaternion._y;
+// AvatarQuaternion._z =avatar.quaternion._z;
+// AvatarQuaternion._w =avatar.quaternion._w;
 
 function animate()
 {
@@ -436,12 +456,25 @@ function render()
         console.log("In the third camera condtion");
 		    cameraAvatar.aspect = canvas.clientWidth / canvas.clientHeight;
         postitionVector= avatar.getWorldPositio(AvatarZ);
+        // postitionVector[2]+=25;
         console.log(postitionVector[0],postitionVector[1],postitionVector[2]);
         console.log(cameraAvatar);
 
 		    cameraAvatar.position.set(postitionVectors);
         }
   }
+  console.log(AvatarQuaternion.angleTo(avatar.quaternion));
+  // AvatarLookAt.sub(avatar.position)
+  // AvatarLookAt.appalyQuaternion(AvatarQuaternion.angleTo(avatar.quaternion));
+  AvatarLookAt.applyAxisAngle( new THREE.Vector3( 0, 0, 1 ),AvatarQuaternion.angleTo(avatar.quaternion));
+  AvatarQuaternion.set(avatar.quaternion._x,avatar.quaternion.y,avatar.quaternion.z,avatar.quaternion.w);
+  console.log(AvatarQuaternion);
+  console.log(avatar.quaternion);
+  console.log(postitionVector);
+  console.log(AvatarLookAt);
+  cameraAvatar.position.set(postitionVector.x,postitionVector.y,postitionVector.z);
+  cameraAvatar.up.set(0, 0, 1);
+  cameraAvatar.lookAt(AvatarLookAt.x,AvatarLookAt.y, AvatarLookAt.z);
     if (camera_mode==1)
       {
 		  renderer.render(scene, cameraDrone);
@@ -455,17 +488,11 @@ function render()
         console.log("In the third camera condtion");
         avatar.getWorldPosition(postitionVector);
         console.log(postitionVector.x);
-        AvatarLookAt.x=postitionVector.x;
-        AvatarLookAt.y=postitionVector.y+100;
-        AvatarLookAt.z=postitionVector.z+25;
-        console.log()
-        console.log(AvatarQuaternion);
-        // AvatarLookAt.applyQuaternion(avatar.quaternion);
-        console.log(postitionVector);
-        console.log(AvatarLookAt);
-		    cameraAvatar.position.set(postitionVector.x,postitionVector.y,postitionVector.z);
-        cameraAvatar.up.set(0, 0, 1);
-        cameraAvatar.lookAt(AvatarLookAt.x,AvatarLookAt.y, AvatarLookAt.z);
+        // AvatarLookAt.x=postitionVector.x;
+        // AvatarLookAt.y=postitionVector.y+100;
+        // AvatarLookAt.z=postitionVector.z+25;
+        
+
       renderer.render(scene, cameraAvatar);
       }
 	
