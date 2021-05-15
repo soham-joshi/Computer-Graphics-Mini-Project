@@ -152,36 +152,36 @@ function addLight(...pos) {
 
     const lights = [];
     const url2 = 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf';
-    gltfLoader.load(url2, (gltf2) => {
-      const root = gltf2.scene;
-      console.log("root", root);
-      // root.scale.x =15;
-      // root.scale.y =15;
-      // root.scale.z =15;
-      root.rotation.x = 5*3.14159 / 2;
-      // avatar = root;
-      // scene.add(root);
-      const loadedLights = root.getObjectByName('Lights');
-      const fixes = [
-        { prefix: 'Light_3', x:-100, y: -100,  rot: [Math.PI, 2*Math.PI, 2*Math.PI ], },
-        { prefix: 'Light_2', x:-200,y: 100, z:-200, rot: [0, Math.PI, 0], },
-        { prefix: 'Light_1', x:100,y: 40, rot: [0, Math.PI, 0], },
-      ];
+    // gltfLoader.load(url2, (gltf2) => {
+      // const root = gltf2.scene;
+      // console.log("root", root);
+      // // root.scale.x =15;
+      // // root.scale.y =15;
+      // // root.scale.z =15;
+      // root.rotation.x = 5*3.14159 / 2;
+      // // avatar = root;
+      // // scene.add(root);
+      // const loadedLights = root.getObjectByName('Lights');
+      // const fixes = [
+      //   { prefix: 'Light_3', x:-100, y: -100,  rot: [Math.PI, 2*Math.PI, 2*Math.PI ], },
+      //   { prefix: 'Light_2', x:-200,y: 100, z:-200, rot: [0, Math.PI, 0], },
+      //   { prefix: 'Light_1', x:100,y: 40, rot: [0, Math.PI, 0], },
+      // ];
       
 
-      root.updateMatrixWorld();
-      for (const light of loadedLights.children.slice()) {
-        console.log("lightt", light);
-        const fix1 = fixes.find(fix1 => light.name.startsWith(fix1.prefix));
-        const obj = new THREE.Object3D();
-        light.position.set(0, fix1.y, 0);
-        light.rotation.set(...fix1.rot);
-        obj.add(light);
-        // car.rotation.x = 5*3.14159 / 2;
-        scene.add(obj);
-        lights.push(obj);
-      }
-    });
+      // root.updateMatrixWorld();
+      // for (const light of loadedLights.children.slice()) {
+      //   console.log("lightt", light);
+      //   const fix1 = fixes.find(fix1 => light.name.startsWith(fix1.prefix));
+      //   const obj = new THREE.Object3D();
+      //   light.position.set(0, fix1.y, 0);
+      //   light.rotation.set(...fix1.rot);
+      //   obj.add(light);
+      //   // car.rotation.x = 5*3.14159 / 2;
+      //   scene.add(obj);
+      //   lights.push(obj);
+      // }
+    // });
       // objects.push(avatar);});
 //   console.log("knight", knight.gltf);
 
