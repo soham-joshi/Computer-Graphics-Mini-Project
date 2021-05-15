@@ -217,6 +217,25 @@ function addLight(...pos) {
     spotLight.shadow.camera.fov = 30;
 
 scene.add( spotLight );
+const spotLight1 = new THREE.SpotLight( 0xFFFFFF);
+spotLight1.position.set( 0,-200,100 );
+
+spotLight1.castShadow = true;
+const targetObject1 = new THREE.Object3D();
+scene.add(targetObject1);
+targetObject1.translateX(0);
+targetObject1.translateY(-250);
+targetObject1.translateZ(0);
+spotLight1.target = targetObject1;
+
+spotLight1.shadow.mapSize.width = 1024;
+spotLight1.shadow.mapSize.height = 1024;
+
+spotLight1.shadow.camera.near = 500;
+spotLight1.shadow.camera.far = 4000;
+spotLight1.shadow.camera.fov = 30;
+
+scene.add( spotLight1 );
 
     const roads = [];
     const url3 = 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf';
