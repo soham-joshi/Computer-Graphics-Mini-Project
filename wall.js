@@ -118,7 +118,71 @@ function addLight(...pos) {
     });
     
     addLight(-100,-100,100);
+    const cars = [];
+    const url1 = 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf';
+    gltfLoader.load(url1, (gltf1) => {
+      const root = gltf1.scene;
+      console.log("root", root);
+      // root.scale.x =15;
+      // root.scale.y =15;
+      // root.scale.z =15;
+      root.rotation.x = 5*3.14159 / 2;
+      // avatar = root;
+      // scene.add(root);
+      const loadedCars = root.getObjectByName('Cars');
+      const fixes = [
+        { prefix: 'Car_08', x:-100, y: -100,  rot: [Math.PI, 2*Math.PI, 2*Math.PI ], },
+        { prefix: 'CAR_03', x:-200,y: 100, z:-200, rot: [0, Math.PI, 0], },
+        { prefix: 'Car_04', x:100,y: 40, rot: [0, Math.PI, 0], },
+      ];
+      
 
+      root.updateMatrixWorld();
+      for (const car of loadedCars.children.slice()) {
+        const fix = fixes.find(fix => car.name.startsWith(fix.prefix));
+        const obj = new THREE.Object3D();
+        car.position.set(0, fix.y, 0);
+        car.rotation.set(...fix.rot);
+        obj.add(car);
+        // car.rotation.x = 5*3.14159 / 2;
+        scene.add(obj);
+        cars.push(obj);
+      }
+    });
+
+    const lights = [];
+    const url2 = 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf';
+    gltfLoader.load(url2, (gltf2) => {
+      const root = gltf2.scene;
+      console.log("root", root);
+      // root.scale.x =15;
+      // root.scale.y =15;
+      // root.scale.z =15;
+      root.rotation.x = 5*3.14159 / 2;
+      // avatar = root;
+      // scene.add(root);
+      const loadedLights = root.getObjectByName('Lights');
+      const fixes = [
+        { prefix: 'Light_3', x:-100, y: -100,  rot: [Math.PI, 2*Math.PI, 2*Math.PI ], },
+        { prefix: 'Light_2', x:-200,y: 100, z:-200, rot: [0, Math.PI, 0], },
+        { prefix: 'Light_1', x:100,y: 40, rot: [0, Math.PI, 0], },
+      ];
+      
+
+      root.updateMatrixWorld();
+      for (const light of loadedLights.children.slice()) {
+        console.log("lightt", light);
+        const fix1 = fixes.find(fix1 => light.name.startsWith(fix1.prefix));
+        const obj = new THREE.Object3D();
+        light.position.set(0, fix1.y, 0);
+        light.rotation.set(...fix1.rot);
+        obj.add(light);
+        // car.rotation.x = 5*3.14159 / 2;
+        scene.add(obj);
+        lights.push(obj);
+      }
+    });
+      // objects.push(avatar);});
 //   console.log("knight", knight.gltf);
 
 // CONTROLS
@@ -145,6 +209,7 @@ wall1BBox.setFromObject(wall_mesh1);
 console.log("janvi", wall1BBox.intersectsBox(cubeBBox));
 
 console.log(MovingCube.geometry.type);
+
 
 function check_collision()
 {
