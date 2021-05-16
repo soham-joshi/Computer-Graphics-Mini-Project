@@ -10,42 +10,67 @@ var collidableMeshList = [];
 
 const scene = new THREE.Scene();
 
-const fov = 50;
-const aspect = 2;  // the canvas default
-const near = 0.1;
-const far = 10000;
-const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-camera.position.set(0, -400, 600);
-camera.up.set(0, 0, 1);
-camera.lookAt(0, 0, 0);
-const controls = new OrbitControls(camera, canvas);
-controls.enableKeys = false;
-controls.target.set(0, 5, 0);
-controls.update();
+
+function createCamera()
+{
+  const fov = 50;
+  const aspect = 2;  // the canvas default
+  const near = 0.1;
+  const far = 10000;
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+  camera.position.set(0, -400, 600);
+  camera.up.set(0, 0, 1);
+  camera.lookAt(0, 0, 0);
+
+  return camera;
+}
+
+function createControls()
+{
+  const controls = new OrbitControls(camera, canvas);
+  controls.enableKeys = false;
+  controls.target.set(0, 5, 0);
+  controls.update();
+
+  return controls;
+}
+
+
+function createGround()
+{
+
+  // Ground
+  var plane_geometry = new THREE.PlaneGeometry( 1000, 1000, 1, 1 );
+  var ground_material = new THREE.MeshBasicMaterial( { color: 0x402A2A } );
+  var ground_mesh = new THREE.Mesh( plane_geometry, ground_material );
+  ground_mesh.material.side = THREE.DoubleSide;
+
+  return ground_mesh;
+}
+
+
+const camera = createCamera();
+const controls = createControls();
+
 
 const objects = [];
 
-// Ground
-var plane_geometry = new THREE.PlaneGeometry( 1000, 1000, 1, 1 );
-var ground_material = new THREE.MeshBasicMaterial( { color: 0x402A2A } );
-var ground_mesh = new THREE.Mesh( plane_geometry, ground_material );
-ground_mesh.material.side = THREE.DoubleSide;
-// ground_mesh.rotation.z = 3.14/2;
+const ground_mesh = createGround();
 scene.add( ground_mesh ); 
 objects.push(ground_mesh);
 
 
 // Cube
-var cubeGeometry = new THREE.BoxGeometry(50,50,50, 1, 1, 1);
-var wireMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe:true } );
-let MovingCube = new THREE.Mesh( cubeGeometry, wireMaterial );
-MovingCube.position.set(20, 50, 26);
-MovingCube.geometry.computeBoundingBox();
-var cubeBBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+// var cubeGeometry = new THREE.BoxGeometry(50,50,50, 1, 1, 1);
+// var wireMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe:true } );
+// let MovingCube = new THREE.Mesh( cubeGeometry, wireMaterial );
+// MovingCube.position.set(20, 50, 26);
+// MovingCube.geometry.computeBoundingBox();
+// var cubeBBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
 
     // console.log("cube bbox", cubeBBox);
-scene.add( MovingCube );
-objects.push(MovingCube);
+// scene.add( MovingCube );
+// objects.push(MovingCube);
 
 // Walls
 var wallGeometry = new THREE.BoxGeometry( 100, 100, 20, 1, 1, 1 );
@@ -152,6 +177,7 @@ function addLight(...pos) {
           obj.add(car);
           scene.add(obj);
           cars.push(obj);
+          objects.push(car);
         }
         });
           // car.rotation.x = 5*3.14
@@ -317,7 +343,7 @@ scene.add( spotLight1 );
 // // keyboard
 // var keyboard = new THREEx.KeyboardState();
 
-console.log(MovingCube.geometry.attributes.position.count);
+// console.log(MovingCube.geometry.attributes.position.count);
 
 function resizeRendererToDisplaySize(renderer) 
 {
@@ -330,11 +356,11 @@ function resizeRendererToDisplaySize(renderer)
 	}
 	return needResize;
 }
-cubeBBox.setFromObject(MovingCube);
-wall1BBox.setFromObject(wall_mesh1);
-console.log("janvi", wall1BBox.intersectsBox(cubeBBox));
+// cubeBBox.setFromObject(MovingCube);
+// wall1BBox.setFromObject(wall_mesh1);
+// console.log("janvi", wall1BBox.intersectsBox(cubeBBox));
 
-console.log(MovingCube.geometry.type);
+// console.log(MovingCube.geometry.type);
 
 
 function check_collision()
@@ -469,9 +495,16 @@ function render(time)
 		  camera.updateProjectionMatrix();
   }
   time = time*0.01
+	
+	renderer.render(scene, camera);
+	
+}
+
+function update()
+{
 
   cars.forEach(car => {
-    car.translateY(k*10);
+    
     if(car.position.y >= 500)
     {
       k=-1;
@@ -481,14 +514,9 @@ function render(time)
     {
       k=1;
     }
+    car.translateY(k*10);
   });
-	
-		renderer.render(scene, camera);
-	
-}
 
-function update()
-{
     controls.update();
 }
 
