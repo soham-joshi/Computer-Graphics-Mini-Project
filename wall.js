@@ -13,7 +13,7 @@ const scene = new THREE.Scene();
 const fov = 50;
 const aspect = 2;  // the canvas default
 const near = 0.1;
-const far = 1000;
+const far = 10000;
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 camera.position.set(0, -400, 600);
 camera.up.set(0, 0, 1);
@@ -26,8 +26,8 @@ controls.update();
 const objects = [];
 
 // Ground
-var plane_geometry = new THREE.PlaneGeometry( 800, 400, 1, 1 );
-var ground_material = new THREE.MeshBasicMaterial( { color: 0x00f2ff } );
+var plane_geometry = new THREE.PlaneGeometry( 1000, 1000, 1, 1 );
+var ground_material = new THREE.MeshBasicMaterial( { color: 0x402A2A } );
 var ground_mesh = new THREE.Mesh( plane_geometry, ground_material );
 ground_mesh.material.side = THREE.DoubleSide;
 // ground_mesh.rotation.z = 3.14/2;
@@ -131,24 +131,30 @@ function addLight(...pos) {
       // scene.add(root);
       const loadedCars = root.getObjectByName('Cars');
       const fixes = [
-        { prefix: 'Car_08', x:-100, y: -100,  rot: [Math.PI, 2*Math.PI, 2*Math.PI ], },
-        { prefix: 'CAR_03', x:-200,y: 100, z:-200, rot: [0, Math.PI, 0], },
-        { prefix: 'Car_04', x:100,y: 40, rot: [0, Math.PI, 0], },
+        { prefix: 'Car_08', y: 0,  rot: [Math.PI * .5, 0, Math.PI * .5], },
+        { prefix: 'CAR_03', y: 33, rot: [0, -2*Math.PI, 0], },
+        { prefix: 'Car_04', y: 40, rot: [0, -2*Math.PI, 0], },
       ];
       
-
-      root.updateMatrixWorld();
-      for (const car of loadedCars.children.slice()) {
-        const fix = fixes.find(fix => car.name.startsWith(fix.prefix));
-        const obj = new THREE.Object3D();
-        car.position.set(0, fix.y, 0);
-        car.rotation.set(...fix.rot);
-        obj.add(car);
-        // car.rotation.x = 5*3.14159 / 2;
-        scene.add(obj);
-        cars.push(obj);
-      }
-    });
+      
+      var carX=[-400,150,600];
+      var carY=[0,0,0];
+      var carZ=[50,50,50];
+      var index=0;
+        root.updateMatrixWorld();
+        for (const car of loadedCars.children.slice()) {
+          const fix = fixes.find(fix => car.name.startsWith(fix.prefix));
+          const obj = new THREE.Object3D();
+          car.position.set(carX[index], carY[index], carZ[index]);
+          index=index+1;
+          car.rotation.set(...fix.rot);
+          car.rotateX(Math.PI/2)
+          obj.add(car);
+          scene.add(obj);
+          cars.push(obj);
+        }
+        });
+          // car.rotation.x = 5*3.14
 
     const lights = [];
     const url2 = 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf';
@@ -182,6 +188,126 @@ function addLight(...pos) {
       //   lights.push(obj);
       // }
     // });
+    gltfLoader.load(url2, (gltf2) => {
+      const root = gltf2.scene;
+      console.log("root", root);
+      // root.scale.x =15;
+      // root.scale.y =15;
+      // root.scale.z =15;
+      root.rotation.x = 5*3.14159 / 2;
+      // avatar = root;
+      // scene.add(root);
+      const loadedLights = root.getObjectByName('Lights');
+      const fixes1 = [
+        { prefix: 'traffic_light', x:-100, y: -100,  rot: [Math.PI/2, 3*Math.PI/2, Math.PI/2 ], },
+        { prefix: 'Light_3', x:-200,y: 100, z:-200, rot: [Math.PI/2, -Math.PI, Math.PI/2], },
+        { prefix: 'Light_2', x:100,y: 40, rot: [0, -3*Math.PI/2, Math.PI/2], },
+      ];
+      
+      var lightX=[0, -100, 0];
+      var lightY=[350,200,-200];
+      var lightZ=[100,50,50];
+      var rlightX=[0, 0, 0];
+      var rlightY=[Math.PI/2, -3*Math.PI/2, Math.PI/2];
+      var rlightZ=[Math.PI/2, -3*Math.PI/2, Math.PI/2];
+      let index1 = 0;
+      root.updateMatrixWorld();
+      for (const light of loadedLights.children.slice()) {
+        console.log("lightt", light);
+        const fix1 = fixes1.find(fix1 => light.name.startsWith(fix1.prefix));
+        console.log("fixxx", fix1);
+        const obj = new THREE.Object3D();
+        light.position.set(lightX[index1], lightY[index1], lightZ[index1]);
+        light.rotation.set(rlightX[index1], rlightY[index1], rlightZ[index1]);
+        index1=index1+1;
+      
+     
+        obj.add(light);
+        // car.rotation.x = 5*3.14159 / 2;
+        scene.add(obj);
+        lights.push(obj);
+      }
+    });
+    const spotLight = new THREE.SpotLight( 0xFFFFFF);
+    spotLight.position.set( -100, 200,100 );
+
+    spotLight.castShadow = true;
+    const targetObject = new THREE.Object3D();
+    scene.add(targetObject);
+    targetObject.translateX(-100);
+    targetObject.translateY(200);
+    targetObject.translateZ(0)
+    spotLight.target = targetObject;
+    
+    spotLight.shadow.mapSize.width = 1024;
+    spotLight.shadow.mapSize.height = 1024;
+
+    spotLight.shadow.camera.near = 500;
+    spotLight.shadow.camera.far = 4000;
+    spotLight.shadow.camera.fov = 30;
+
+scene.add( spotLight );
+const spotLight1 = new THREE.SpotLight( 0xFFFFFF);
+spotLight1.position.set( 0,-200,100 );
+
+spotLight1.castShadow = true;
+const targetObject1 = new THREE.Object3D();
+scene.add(targetObject1);
+targetObject1.translateX(0);
+targetObject1.translateY(-250);
+targetObject1.translateZ(0);
+spotLight1.target = targetObject1;
+
+spotLight1.shadow.mapSize.width = 1024;
+spotLight1.shadow.mapSize.height = 1024;
+
+spotLight1.shadow.camera.near = 500;
+spotLight1.shadow.camera.far = 4000;
+spotLight1.shadow.camera.fov = 30;
+
+scene.add( spotLight1 );
+
+    const roads = [];
+    const url3 = 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf';
+    gltfLoader.load(url3, (gltf3) => {
+      const root = gltf3.scene;
+      console.log("root", root);
+      // root.scale.x =15;
+      // root.scale.y =15;
+      // root.scale.z =15;
+      root.rotation.x = 5*3.14159 / 2;
+      // avatar = root;
+      // scene.add(root);
+      const loadedRoad = root.getObjectByName('ROAD');
+      const fixes1 = [
+        { prefix: 'ROAD_Lines_12', x:-100, y: -100,  rot: [Math.PI/2, 3*Math.PI/2, Math.PI/2 ], },
+        // { prefix: 'Light_3', x:-200,y: 100, z:-200, rot: [0, Math.PI, 0], },
+        // { prefix: 'Light_2', x:100,y: 40, rot: [0, Math.PI, 0], },
+      ];
+      
+
+      root.updateMatrixWorld();
+      for (const road of loadedRoad.children.slice()) {
+        console.log("roaddd", road);
+        const fix = fixes1.find(fix => road.name.startsWith(fix.prefix));
+        console.log("fixxx", fix);
+        const obj = new THREE.Object3D();
+        // road.position.set(0, fix.y, 0);
+        // road.rotation.set(...fix.rot);
+
+        road.position.x = 200;
+        road.position.y = 0;
+        road.scale.x = 6/10;
+        road.scale.y =5/10;
+        road.scale.z =5/10;
+        road.rotation.x = Math.PI;
+        
+        obj.add(road);
+        // car.rotation.x = 5*3.14159 / 2;
+        scene.add(obj);
+        roads.push(obj);
+      }
+    });
       // objects.push(avatar);});
 //   console.log("knight", knight.gltf);
 
@@ -333,15 +459,29 @@ function animate()
     update();
 
 }
-
-function render()
+let k=1;
+function render(time)
 {
 	if (resizeRendererToDisplaySize(renderer)) 
 	{
 		  const canvas = renderer.domElement;
 		  camera.aspect = canvas.clientWidth / canvas.clientHeight;
 		  camera.updateProjectionMatrix();
-	}
+  }
+  time = time*0.01
+
+  cars.forEach(car => {
+    car.translateY(k*10);
+    if(car.position.y >= 500)
+    {
+      k=-1;
+    }
+
+    else if(car.position.y <= -500)
+    {
+      k=1;
+    }
+  });
 	
 		renderer.render(scene, camera);
 	
