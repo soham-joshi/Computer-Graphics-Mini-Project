@@ -119,6 +119,7 @@ function addLight(...pos) {
     
     addLight(-100,-100,100);
     const cars = [];
+    const headlights = [];
     const url1 = 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf';
     gltfLoader.load(url1, (gltf1) => {
       const root = gltf1.scene;
@@ -146,12 +147,42 @@ function addLight(...pos) {
           const fix = fixes.find(fix => car.name.startsWith(fix.prefix));
           const obj = new THREE.Object3D();
           car.position.set(carX[index], carY[index], carZ[index]);
-          index=index+1;
+          
           car.rotation.set(...fix.rot);
           car.rotateX(Math.PI/2)
           obj.add(car);
           scene.add(obj);
-          cars.push(obj);
+         
+          const spotLight3 = new THREE.SpotLight( 0xFFFFFF);
+            spotLight3.position.set(carX[index], carY[index], carZ[index]);
+
+            spotLight3.castShadow = true;
+            const targetObject3 = new THREE.Object3D();
+            scene.add(targetObject3);
+            targetObject3.translateX(carX[index]);
+            if(carY[index]=500)
+            {
+                
+                targetObject3.translateY(carY[index]+20);
+            }
+            else
+            {
+                carY[index] *= -1;
+                targetObject3.translateY(carY[index]+20);
+            }
+            targetObject3.translateZ(carZ[index]);
+            spotLight3.target = targetObject3;
+            
+            spotLight3.shadow.mapSize.width = 1024;
+            spotLight3.shadow.mapSize.height = 1024;
+
+            spotLight3.shadow.camera.near = 500;
+            spotLight3.shadow.camera.far = 4000;
+            spotLight3.shadow.camera.fov = 30;
+            index=index+1;
+            scene.add(spotLight3);
+            headlights.push(spotLight3);
+            cars.push(obj, spotLight3);
         }
         });
           // car.rotation.x = 5*3.14
@@ -224,7 +255,7 @@ spotLight1.castShadow = true;
 const targetObject1 = new THREE.Object3D();
 scene.add(targetObject1);
 targetObject1.translateX(0);
-targetObject1.translateY(-250);
+targetObject1.translateY(-220);
 targetObject1.translateZ(0);
 spotLight1.target = targetObject1;
 
@@ -233,9 +264,14 @@ spotLight1.shadow.mapSize.height = 1024;
 
 spotLight1.shadow.camera.near = 500;
 spotLight1.shadow.camera.far = 4000;
-spotLight1.shadow.camera.fov = 30;
+spotLight1.shadow.camera.fov = 20;
 
 scene.add( spotLight1 );
+const skyColor = 0xB1E1FF;  // light blue
+    const groundColor = 0xB97A20;  // brownish orange
+    const intensity = 1;
+    const light11 = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+    // scene.add(light11);
 
     const roads = [];
     const url3 = 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf';
@@ -441,7 +477,7 @@ function render(time)
   time = time*0.01
 
   cars.forEach(car => {
-    car.translateY(k*10);
+    
     if(car.position.y >= 500)
     {
       k=-1;
@@ -451,6 +487,8 @@ function render(time)
     {
       k=1;
     }
+    car.translateY(k*10);
+    // headlight.position.set(car.position);
   });
 	
 		renderer.render(scene, camera);
