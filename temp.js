@@ -6,8 +6,14 @@ import { vec3, mat4 } from 'https://cdn.skypack.dev/gl-matrix';
 console.log("Hello");
 const canvas = document.querySelector('#c');
 const renderer = new THREE.WebGLRenderer({canvas});
-var CameraAngle=0,cameraDroneAngle=0;
-var CameraDroneLookAtPosition=new THREE.Vector3()
+
+class carClass
+{
+constructor(x,y,z)
+  {
+  
+  }
+}
 
 var AvatarQuaternion = new THREE.Quaternion();
 // var AvatarEuler= new THREE.Euler( 0, 1, 1.57, 'XYZ' );
@@ -22,10 +28,10 @@ const near = 0.1;
 const far = 10000;
 //Drone Camera
 const cameraDrone = new THREE.PerspectiveCamera(fov, aspect, near, far);
-cameraDrone.position.set(0, 0, 200);
+cameraDrone.position.set(0, -400, 600);
 cameraDrone.up.set(0, 0, 1);
-cameraDrone.lookAt(300, 0, 0);
-// const controls = new OrbitControls(cameraDrone, canvas);
+cameraDrone.lookAt(0, 0, 0);
+const controls = new OrbitControls(cameraDrone, canvas);
 //Fixed Camera
 const cameraFixed = new THREE.PerspectiveCamera(fov, aspect, near, far);
 cameraFixed.position.set(100, 400, 600);
@@ -36,11 +42,10 @@ const cameraAvatar = new THREE.PerspectiveCamera(fov, aspect, near, far);
 cameraAvatar.position.set(100, 400, 600 );
 cameraAvatar.up.set(0, 0, 1);
 cameraAvatar.lookAt(100, 0, 0);
-// const controlsAvatar = new OrbitControls(cameraAvatar, canvas);
 
-// controls.enableKeys = false;
-// controls.target.set(0, 5, 0);
-// controls.update();
+controls.enableKeys = false;
+controls.target.set(0, 5, 0);
+controls.update();
 
 const objects = [];
 
@@ -362,108 +367,59 @@ window.addEventListener("keydown", function(eee){
     switch(eee.keyCode)
     {
       case 39: // Right
-        if (camera_mode==2)
-            {
-            CameraTranslate();
-            avatar.translateX(5);
-            console.log("pos", avatar.position);
-            console.log("camera look at Pos", AvatarLookAt);
+        CameraTranslate();
+        avatar.translateX(5);
+        console.log("pos", avatar.position);
+        console.log("camera look at Pos", AvatarLookAt);
         
-            // BB check
-            if(check_collision())
-                {
-                avatar.translateX(-5);
-                }
-            }
+        // BB check
+        if(check_collision())
+        {
+          avatar.translateX(-5);
+        }
+        
         break;
       case 82:
-            if (camera_mode==2)
-                {
-                avatar.rotateOnAxis(new THREE.Vector3( 0, 1, 0 ),0.05);
-                CameraAngle+=0.05
-                console.log( AvatarLookAt);
-                }
-            else if (camera_mode==1)
-                {
-                cameraDroneAngle+=0.05
-                }
-        break;
-      case 84:
-        if (camera_mode==2)
-            {
-            avatar.rotateOnAxis(new THREE.Vector3( 0, 1, 0 ),-0.05);
-            CameraAngle-=0.05
-            console.log( AvatarLookAt);
-            }
-        else if(camera_mode==1)
-            {
-            cameraDroneAngle-=0.05
-            }
-      break;
-      case 84:
-        if (camera_mode==2)
-            {
-            avatar.rotateOnAxis(new THREE.Vector3( 0, 1, 0 ),-0.05);
-            CameraAngle-=0.05
-            console.log( AvatarLookAt);
-            }
-        else if(camera_mode==1)
-            {
-            cameraDroneAngle-=0.05
-            }
+        avatar.rotateOnAxis(new THREE.Vector3( 0, 1, 0 ),0.01);
       break;
       case 67:  // Near 
           camera_mode=camera_mode+1;
           camera_mode=camera_mode%3;
       break;
       case 40:  // Near 
-            if (camera_mode==2)
-                {
-                CameraTranslate();
-                avatar.translateZ(5);
-                console.log("pos", avatar.position);    
-                if(check_collision())
-                    {
-                    avatar.translateZ(-5);
-                    }
-                }
-            else if (camera_mode==1)
-                {
-                cameraDrone.position.z-=15;
-                }
+            CameraTranslate();
+            avatar.translateZ(5);
+            console.log("pos", avatar.position);
+
+            // BB check
+            if(check_collision())
+            {
+              avatar.translateZ(-5);
+            }
         break;
 
       case 37:  // Left
-            if (camera_mode==2)
-                {
-                CameraTranslate();
-                avatar.translateX(-5);
-                console.log("pos", avatar.position);
+            CameraTranslate();
+            avatar.translateX(-5);
+            console.log("pos", avatar.position);
 
-                // BB check
-                if(check_collision())
-                    {
-                    avatar.translateX(5);
-                    }
-                }
+            // BB check
+            if(check_collision())
+            {
+              avatar.translateX(5);
+            }
         break;
 
       case 38:  // Far
-            if (camera_mode==2)
-                {
-                CameraTranslate();
-                avatar.translateZ(-5);
-                console.log("pos", avatar.position);
-                // BB check
-                if(check_collision())
-                    {
-                    avatar.translateZ(5);
-                    }
-                }
-            else if (camera_mode==1)
-                {
-                cameraDrone.position.z+=15
-                }
+            CameraTranslate();
+            avatar.translateZ(-5);
+            console.log("pos", avatar.position);
+
+            // BB check
+            if(check_collision())
+            {
+              avatar.translateZ(5);
+            }
         break;
     }
 
@@ -478,10 +434,10 @@ var AvatarLookAt= new THREE.Vector3();
 
 console.log(avatar.quaternion);
 // AvatarQuaternion=avatar.quaternion.clone();
-AvatarQuaternion.x =0;
-AvatarQuaternion._y =0;
-AvatarQuaternion._z =0;
-AvatarQuaternion._w =0;
+// AvatarQuaternion.x =avatar.quaternion.x;
+// AvatarQuaternion._y =avatar.quaternion._y;
+// AvatarQuaternion._z =avatar.quaternion._z;
+// AvatarQuaternion._w =avatar.quaternion._w;
 
 function animate()
 {
@@ -500,14 +456,12 @@ function render()
 		  const canvas = renderer.domElement;
       if (canvas_mode==1)
         {
-        cameraDrone.reset();
-        console.log("In the second camera condtion");
-		cameraDrone.aspect = canvas.clientWidth / canvas.clientHeight;
-		cameraDrone.updateProjectionMatrix();
+          console.log("In the second camera condtion");
+		    cameraDrone.aspect = canvas.clientWidth / canvas.clientHeight;
+		    cameraDrone.updateProjectionMatrix();
         }
       else if (canvas_mode==2)
         {
-        cameraDrone.saveState ();
         console.log("In the third camera condtion");
 		    cameraAvatar.aspect = canvas.clientWidth / canvas.clientHeight;
         postitionVector= avatar.getWorldPositio(AvatarZ);
@@ -517,43 +471,41 @@ function render()
 
 		    cameraAvatar.position.set(postitionVectors);
         }
-     else if (canvas_mode==0)
-        {
-        cameraDrone.saveState ();   
-        }
   }
-
-
+  console.log(AvatarQuaternion.angleTo(avatar.quaternion));
+  // AvatarLookAt.sub(avatar.position)
+  // AvatarLookAt.applyQuaternion(AvatarQuaternion.angleTo(avatar.quaternion));
+  // AvatarLookAt.applyAxisAngle( new THREE.Vector3( 0, 0, 1 ),AvatarQuaternion.angleTo(avatar.quaternion));
+  AvatarQuaternion.set(avatar.quaternion._x,avatar.quaternion.y,avatar.quaternion.z,avatar.quaternion.w);
+  console.log(AvatarQuaternion);
+  console.log(avatar.quaternion);
+  console.log(postitionVector);
+  console.log(AvatarLookAt);
+  cameraAvatar.position.set(avatar.position.x,avatar.position.y,avatar.position.z+25);
+  AvatarLookAt.x=0;
+  AvatarLookAt.y=100;
+  AvatarLookAt.z=25;
+  console.log(AvatarQuaternion.angleTo(avatar.quaternion));
+  AvatarLookAt.applyAxisAngle( new THREE.Vector3( 0, 0, 1 ),AvatarQuaternion.angleTo(avatar.quaternion));
+  cameraAvatar.up.set(0, 0, 1);
+  cameraAvatar.lookAt(avatar.position.x+AvatarLookAt.x,avatar.position.y+AvatarLookAt.y,avatar.position.z+AvatarLookAt.z);
+  // AvatarQuaternion.copy(avatar.quaternion);
+  AvatarQuaternion.x =avatar.quaternion.x;
+  AvatarQuaternion._y =avatar.quaternion._y;
+  AvatarQuaternion._z =avatar.quaternion._z;
+  AvatarQuaternion._w =avatar.quaternion._w;
+  console.log(AvatarQuaternion)
 
     if (camera_mode==1)
       {
-        CameraDroneLookAtPosition.x=cameraDrone.position.z;
-        CameraDroneLookAtPosition.y=0;
-        CameraDroneLookAtPosition.z=0;
-        CameraDroneLookAtPosition.applyAxisAngle(new THREE.Vector3( 0, 0, 1 ),cameraDroneAngle);
-        // console.log(CameraDroneLookAtPosition)
-        cameraDrone.lookAt(CameraDroneLookAtPosition.x,CameraDroneLookAtPosition.y,CameraDroneLookAtPosition.z);
-		renderer.render(scene, cameraDrone);
+		  renderer.render(scene, cameraDrone);
       }
     else if (camera_mode==0) 
       {
-
       renderer.render(scene, cameraFixed);
       }
     else
       {
-        cameraAvatar.position.set(avatar.position.x,avatar.position.y,avatar.position.z+25);
-        AvatarLookAt.x=0;
-        AvatarLookAt.y=100;
-        AvatarLookAt.z=25;
-        
-        cameraAvatar.up.set(0, 0, 1);
-        
-        AvatarLookAt=AvatarLookAt.applyAxisAngle( new THREE.Vector3( 0, 0, 1 ),CameraAngle);
-        cameraAvatar.lookAt(avatar.position.x+AvatarLookAt.x,avatar.position.y+AvatarLookAt.y,avatar.position.z+AvatarLookAt.z);
-        console.log(CameraAngle)
-        console.log( AvatarLookAt);
-        // console.log( [avatar.position.x+AvatarLookAt.x,avatar.position.y+AvatarLookAt.y,avatar.position.z+AvatarLookAt.z]);
         console.log("In the third camera condtion");
       renderer.render(scene, cameraAvatar);
       }
@@ -562,7 +514,7 @@ function render()
 
 function update()
 {
-
-    }
+    controls.update();
+}
 
 animate();
