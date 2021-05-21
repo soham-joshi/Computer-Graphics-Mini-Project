@@ -126,11 +126,15 @@ function addLight(...pos) {
       scene.add(root);
       objects.push(avatar);
 
+<<<<<<< Updated upstream
       AvatarEuler.copy(avatar.rotation);
       console.log(AvatarEuler);
       AvatarQuaternion.set(avatar.quaternion._x,avatar.quaternion.y,avatar.quaternion.z,avatar.quaternion.w);
       console.log(avatar.quaternion);
       console.log(AvatarQuaternion)
+=======
+      
+>>>>>>> Stashed changes
 
     // const cameraAvatar = new THREE.PerspectiveCamera(fov, aspect, near, far);
     cameraAvatar.position.set(avatar.getWorldPosition );
@@ -167,6 +171,7 @@ function addLight(...pos) {
         { prefix: 'Car_04', x:100,y: 40, rot: [0, 0, 0], },
       ];
       
+<<<<<<< Updated upstream
     var carX=[10,10,10];
     var carY=[100,0,0];
     var carZ=[0,100,0];
@@ -177,36 +182,98 @@ function addLight(...pos) {
         const obj = new THREE.Object3D();
         car.position.set(carX[index], carY[index], carZ[index]);
         index=index+1;
+=======
+var carX=[-400,150,600];
+var carY=[0,0,0];
+var carZ=[50,50,50];
+var index=0;
+root.updateMatrixWorld();
+for (const car of loadedCars.children.slice()) {
+        const fix = fixes.find(fix => car.name.startsWith(fix.prefix));
+        const obj = new THREE.Object3D();
+        car.position.set(carX[index], carY[index], carZ[index]);
+        
+>>>>>>> Stashed changes
         car.rotation.set(...fix.rot);
         car.rotateX(Math.PI/2)
         obj.add(car);
         // car.rotation.x = 5*3.14159 / 2;
         scene.add(obj);
+<<<<<<< Updated upstream
         cars.push(obj);
       }
     });
+=======
+                 
+        const spotLight3 = new THREE.SpotLight( 0xFFFFFF);
+        spotLight3.position.set(carX[index], carY[index], carZ[index]);
 
-    const lights = [];
-    const url2 = 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf';
-    gltfLoader.load(url2, (gltf2) => {
-      const root = gltf2.scene;
-      console.log("root", root);
+        spotLight3.castShadow = true;
+        const targetObject3 = new THREE.Object3D();
+        scene.add(targetObject3);
+        targetObject3.translateX(carX[index]);
+        if(carY[index]=500)
+        {
+            
+            targetObject3.translateY(carY[index]+20);
+        }
+        else
+        {
+            carY[index] *= -1;
+            targetObject3.translateY(carY[index]+20);
+        }
+        targetObject3.translateZ(carZ[index]);
+        spotLight3.target = targetObject3;
+        
+        spotLight3.shadow.mapSize.width = 1024;
+        spotLight3.shadow.mapSize.height = 1024;
+
+        spotLight3.shadow.camera.near = 500;
+        spotLight3.shadow.camera.far = 4000;
+        spotLight3.shadow.camera.fov = 30;
+        index=index+1;
+        scene.add(spotLight3);
+        headlights.push(spotLight3);
+        cars.push(obj);
+      }
+});
+>>>>>>> Stashed changes
+
+const lights = [];
+const url2 = 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf';
+gltfLoader.load(url2, (gltf2) => {
+const root = gltf2.scene;
+console.log("root", root);
       // root.scale.x =15;
       // root.scale.y =15;
       // root.scale.z =15;
-      root.rotation.x = 5*3.14159 / 2;
+root.rotation.x = 5*3.14159 / 2;
       // avatar = root;
       // scene.add(root);
-      const loadedLights = root.getObjectByName('Lights');
-      const fixes1 = [
+const loadedLights = root.getObjectByName('Lights');
+const fixes1 = [
         { prefix: 'traffic_light', x:-100, y: -100,  rot: [Math.PI/2, 3*Math.PI/2, Math.PI/2 ], },
         { prefix: 'Light_3', x:-200,y: 100, z:-200, rot: [0, Math.PI, 0], },
         { prefix: 'Light_2', x:100,y: 40, rot: [0, Math.PI, 0], },
+<<<<<<< Updated upstream
       ];
       
 
       root.updateMatrixWorld();
       for (const light of loadedLights.children.slice()) {
+=======
+];
+var lightX=[0, -100, 0];
+var lightY=[350,200,-200];
+var lightZ=[100,50,50];
+var rlightX=[0, 0, 0];
+var rlightY=[Math.PI/2, -3*Math.PI/2, Math.PI/2];
+var rlightZ=[Math.PI/2, -3*Math.PI/2, Math.PI/2];
+let index1 = 0; 
+
+root.updateMatrixWorld();
+for (const light of loadedLights.children.slice()) {
+>>>>>>> Stashed changes
         // console.log("lightt", light);
         const fix = fixes1.find(fix => light.name.startsWith(fix.prefix));
         // console.log("fixxx", fix);
@@ -221,11 +288,59 @@ function addLight(...pos) {
         scene.add(obj);
         lights.push(obj);
       }
+<<<<<<< Updated upstream
     });
 
     const roads = [];
     const url3 = 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf';
     gltfLoader.load(url3, (gltf3) => {
+=======
+});
+const spotLight = new THREE.SpotLight( 0xFFFFFF);
+spotLight.position.set( -100, 200,100 );
+
+spotLight.castShadow = true;
+const targetObject = new THREE.Object3D();
+scene.add(targetObject);
+targetObject.translateX(-100);
+targetObject.translateY(200);
+targetObject.translateZ(0)
+spotLight.target = targetObject;
+spotLight.shadow.mapSize.width = 1024;
+spotLight.shadow.mapSize.height = 1024;
+spotLight.shadow.camera.near = 500;
+spotLight.shadow.camera.far = 4000;
+spotLight.shadow.camera.fov = 30;
+
+scene.add( spotLight );
+const spotLight1 = new THREE.SpotLight( 0xFFFFFF);
+spotLight1.position.set( 0,-200,100 );
+
+spotLight1.castShadow = true;
+const targetObject1 = new THREE.Object3D();
+scene.add(targetObject1);
+targetObject1.translateX(0);
+targetObject1.translateY(-220);
+targetObject1.translateZ(0);
+spotLight1.target = targetObject1;
+
+spotLight1.shadow.mapSize.width = 1024;
+spotLight1.shadow.mapSize.height = 1024;
+
+spotLight1.shadow.camera.near = 500;
+spotLight1.shadow.camera.far = 4000;
+spotLight1.shadow.camera.fov = 20;
+
+scene.add( spotLight1 );
+const skyColor = 0xB1E1FF;  // light blue
+const groundColor = 0xB97A20;  // brownish orange
+const intensity = 1;
+const light11 = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+    // scene.add(light11);
+const roads = [];
+const url3 = 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf';
+gltfLoader.load(url3, (gltf3) => {
+>>>>>>> Stashed changes
       const root = gltf3.scene;
       console.log("root", root);
       // root.scale.x =15;
@@ -296,6 +411,7 @@ function  CameraTranslate()
   {
   
   }
+
 
 function check_collision()
 {
@@ -402,6 +518,7 @@ window.addEventListener("keydown", function(eee){
       break;
       case 84:
         if (camera_mode==2)
+<<<<<<< Updated upstream
             {
             avatar.rotateOnAxis(new THREE.Vector3( 0, 1, 0 ),-0.05);
             CameraAngle-=0.05
@@ -413,6 +530,19 @@ window.addEventListener("keydown", function(eee){
             }
       break;
       case 67:  // Near 
+=======
+            {
+            avatar.rotateOnAxis(new THREE.Vector3( 0, 1, 0 ),-0.05);
+            CameraAngle-=0.05
+            console.log( AvatarLookAt);
+            }
+        else if(camera_mode==1)
+            {
+            cameraDroneAngle-=0.05
+            }
+      break;
+      case 67:  // camera mode change 
+>>>>>>> Stashed changes
           camera_mode=camera_mode+1;
           camera_mode=camera_mode%3;
       break;
@@ -524,6 +654,7 @@ function render()
         {
         cameraDrone.saveState ();   
         }
+<<<<<<< Updated upstream
   }
 
 
@@ -560,12 +691,66 @@ function render()
         console.log("In the third camera condtion");
       renderer.render(scene, cameraAvatar);
       }
+=======
+  
+  time = time*0.01;
+  cars.forEach(car => {
+    
+  if(car.position.y >= 500)
+    {
+      k=-1;
+    }
+
+  else if(car.position.y <= -500)
+    {
+      k=1;
+    }
+    car.translateY(k*10);
+    // headlight.position.set(car.position);
+  });
+  }
+  if (camera_mode==1)
+    {
+    CameraDroneLookAtPosition.x=cameraDrone.position.z;
+    CameraDroneLookAtPosition.y=0;
+    CameraDroneLookAtPosition.z=0;
+    CameraDroneLookAtPosition.applyAxisAngle(new THREE.Vector3( 0, 0, 1 ),cameraDroneAngle);
+        // console.log(CameraDroneLookAtPosition)
+    cameraDrone.lookAt(CameraDroneLookAtPosition.x,CameraDroneLookAtPosition.y,CameraDroneLookAtPosition.z);
+		renderer.render(scene, cameraDrone);
+    }
+  else if (camera_mode==0) 
+    {
+    renderer.render(scene, cameraFixed);
+    }
+  else
+    {
+    cameraAvatar.position.set(avatar.position.x,avatar.position.y,avatar.position.z+25);
+    AvatarLookAt.x=0;
+    AvatarLookAt.y=100;
+    AvatarLookAt.z=25;
+        
+    cameraAvatar.up.set(0, 0, 1);
+        
+    AvatarLookAt=AvatarLookAt.applyAxisAngle( new THREE.Vector3( 0, 0, 1 ),CameraAngle);
+    cameraAvatar.lookAt(avatar.position.x+AvatarLookAt.x,avatar.position.y+AvatarLookAt.y,avatar.position.z+AvatarLookAt.z);
+    console.log(CameraAngle)
+    console.log( AvatarLookAt);
+        // console.log( [avatar.position.x+AvatarLookAt.x,avatar.position.y+AvatarLookAt.y,avatar.position.z+AvatarLookAt.z]);
+    console.log("In the third camera condtion");
+    renderer.render(scene, cameraAvatar);
+    }
+>>>>>>> Stashed changes
 	
 }
 
 function update()
 {
 
+<<<<<<< Updated upstream
     }
+=======
+}
+>>>>>>> Stashed changes
 
 animate();
