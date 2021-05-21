@@ -429,7 +429,10 @@ window.addEventListener("keydown", function(eee){
                 }
             else if (camera_mode==1)
                 {
-                cameraDrone.position.z-=15;
+                if (cameraDrone.position.z>150)
+                  {
+                  cameraDrone.position.z-=8;
+                  }
                 }
         break;
 
@@ -462,7 +465,7 @@ window.addEventListener("keydown", function(eee){
                 }
             else if (camera_mode==1)
                 {
-                cameraDrone.position.z+=15
+                cameraDrone.position.z+=8
                 }
         break;
     }
