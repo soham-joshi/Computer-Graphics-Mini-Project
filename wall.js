@@ -3,26 +3,34 @@ import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/t
 import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/loaders/GLTFLoader.js';
 const canvas = document.querySelector('#c');
 const renderer = new THREE.WebGLRenderer({canvas});
+var CameraAngle=0,cameraDroneAngle=0;
+var CameraDroneLookAtPosition=new THREE.Vector3()
 
-
-
+var AvatarQuaternion = new THREE.Quaternion();
 var collidableMeshList = [];
-
+var camera_mode=0; 
 const scene = new THREE.Scene();
 
 const fov = 50;
 const aspect = 2;  // the canvas default
 const near = 0.1;
 const far = 10000;
-const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-camera.position.set(0, -400, 600);
-camera.up.set(0, 0, 1);
-camera.lookAt(0, 0, 0);
-const controls = new OrbitControls(camera, canvas);
-controls.enableKeys = false;
-controls.target.set(0, 5, 0);
-controls.update();
-
+//Drone Camera
+const cameraDrone = new THREE.PerspectiveCamera(fov, aspect, near, far);
+cameraDrone.position.set(0, 0, 200);
+cameraDrone.up.set(0, 0, 1);
+cameraDrone.lookAt(300, 0, 0);
+// const controls = new OrbitControls(cameraDrone, canvas);
+//Fixed Camera
+const cameraFixed = new THREE.PerspectiveCamera(fov, aspect, near, far);
+cameraFixed.position.set(100, 400, 600);
+cameraFixed.up.set(0, 0, 1);
+cameraFixed.lookAt(0, 0, 0);
+//Avatar Camera
+const cameraAvatar = new THREE.PerspectiveCamera(fov, aspect, near, far);
+cameraAvatar.position.set(100, 400, 600 );
+cameraAvatar.up.set(0, 0, 1);
+cameraAvatar.lookAt(100, 0, 0);
 const objects = [];
 
 // Ground
@@ -36,16 +44,36 @@ objects.push(ground_mesh);
 
 
 // Cube
-var cubeGeometry = new THREE.BoxGeometry(50,50,50, 1, 1, 1);
-var wireMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe:true } );
-let MovingCube = new THREE.Mesh( cubeGeometry, wireMaterial );
-MovingCube.position.set(20, 50, 26);
+var cubeGeometry1 = new THREE.BoxGeometry(50,50,50, 1, 1, 1);
+var wireMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe:false } );
+let MovingCube = new THREE.Mesh( cubeGeometry1, wireMaterial );
+MovingCube.position.set(20, -400, 26);
 MovingCube.geometry.computeBoundingBox();
 var cubeBBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
 
     // console.log("cube bbox", cubeBBox);
 scene.add( MovingCube );
 objects.push(MovingCube);
+
+//cube 2
+var cubeGeometry2 = new THREE.BoxGeometry(50,50,50, 1, 1, 1);
+var wireMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe:false } );
+let MovingCube1 = new THREE.Mesh( cubeGeometry2, wireMaterial );
+MovingCube1.position.set(-60, -15, 26);
+MovingCube1.geometry.computeBoundingBox();
+var cubeBBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+MovingCube.add(MovingCube1);
+objects.push(MovingCube1);
+
+//cube 3
+var cubeGeometry3 = new THREE.BoxGeometry(50,50,50, 1, 1, 1);
+var wireMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe:false } );
+let MovingCube2 = new THREE.Mesh( cubeGeometry3, wireMaterial );
+MovingCube2.position.set(-120, -15, 26);
+MovingCube2.geometry.computeBoundingBox();
+var cubeBBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+MovingCube.add(MovingCube2);
+objects.push(MovingCube2);
 
 // Walls
 var wallGeometry = new THREE.BoxGeometry( 100, 100, 20, 1, 1, 1 );
@@ -105,6 +133,18 @@ function addLight(...pos) {
       avatar = root;
       scene.add(root);
       objects.push(avatar);
+
+      AvatarEuler.copy(avatar.rotation);
+      console.log(AvatarEuler);
+      AvatarQuaternion.set(avatar.quaternion._x,avatar.quaternion.y,avatar.quaternion.z,avatar.quaternion.w);
+      console.log(avatar.quaternion);
+      console.log(AvatarQuaternion)
+
+
+      // const cameraAvatar = new THREE.PerspectiveCamera(fov, aspect, near, far);
+      cameraAvatar.position.set(avatar.getWorldPosition );
+      cameraAvatar.up.set(0, 0, 1);
+      cameraAvatar.lookAt(100, 0, 0);
     //   const box = new THREE.Box3().setFromObject(root);
 
     //   const boxSize = box.getSize(new THREE.Vector3()).length();
@@ -248,25 +288,8 @@ function addLight(...pos) {
     spotLight.shadow.camera.fov = 30;
 
 scene.add( spotLight );
-const spotLight1 = new THREE.SpotLight( 0xFFFFFF);
-spotLight1.position.set( 0,-200,100 );
 
-spotLight1.castShadow = true;
-const targetObject1 = new THREE.Object3D();
-scene.add(targetObject1);
-targetObject1.translateX(0);
-targetObject1.translateY(-220);
-targetObject1.translateZ(0);
-spotLight1.target = targetObject1;
 
-spotLight1.shadow.mapSize.width = 1024;
-spotLight1.shadow.mapSize.height = 1024;
-
-spotLight1.shadow.camera.near = 500;
-spotLight1.shadow.camera.far = 4000;
-spotLight1.shadow.camera.fov = 20;
-
-scene.add( spotLight1 );
 const skyColor = 0xB1E1FF;  // light blue
     const groundColor = 0xB97A20;  // brownish orange
     const intensity = 1;
@@ -408,55 +431,132 @@ window.addEventListener("keydown", function(eee){
     switch(eee.keyCode)
     {
       case 39: // Right
-        avatar.translateX(5);
-        console.log("pos", avatar.position);
-        
-        // BB check
-        if(check_collision())
-        {
+      if (camera_mode==2)
+      {
+      CameraTranslate();
+      avatar.translateX(5);
+      console.log("pos", avatar.position);
+      console.log("camera look at Pos", AvatarLookAt);
+  
+      // BB check
+      if(check_collision())
+          {
           avatar.translateX(-5);
-        }
+          }
+      }
         
+      break;
+      case 82:
+            if (camera_mode==2)
+                {
+                avatar.rotateOnAxis(new THREE.Vector3( 0, 1, 0 ),0.05);
+                CameraAngle+=0.05
+                console.log( AvatarLookAt);
+                }
+            else if (camera_mode==1)
+                {
+                cameraDroneAngle+=0.05
+                }
         break;
+      case 84: //turn
+            if (camera_mode==2)
+            {
+            avatar.rotateOnAxis(new THREE.Vector3( 0, 1, 0 ),-0.05);
+            CameraAngle-=0.05
+            console.log( AvatarLookAt);
+            }
+            else if(camera_mode==1)
+            {
+            cameraDroneAngle-=0.05
+            }
+      break;
 
       case 40:  // Near 
-            avatar.translateZ(5);
-            console.log("pos", avatar.position);
-
-            // BB check
-            if(check_collision())
-            {
-              avatar.translateZ(-5);
-            }
+      if (camera_mode==2)
+      {
+      CameraTranslate();
+      avatar.translateZ(5);
+      console.log("pos", avatar.position);    
+      if(check_collision())
+          {
+          avatar.translateZ(-5);
+          }
+      }
+      else if (camera_mode==1)
+          {
+      if (cameraDrone.position.z>150)
+        {
+        cameraDrone.position.z-=8;
+        }
+      }
         break;
+      // case 67:  // Near 
 
+      //   {
+      //   avatar.rotateOnAxis(new THREE.Vector3( 0, 1, 0 ),-0.05);
+      //   CameraAngle-=0.05
+      //   console.log( AvatarLookAt);
+      //   }
+      // if(camera_mode==1)
+      //   {
+      //   cameraDroneAngle-=0.05
+      //   }
+      //   break;
+      case 67:  // camera mode change 
+            camera_mode=camera_mode+1;
+            camera_mode=camera_mode%3;
+        break;
       case 37:  // Left
-            avatar.translateX(-5);
-            console.log("pos", avatar.position);
+      if (camera_mode==2)
+      {
+      CameraTranslate();
+      avatar.translateX(-5);
+      console.log("pos", avatar.position);
 
-            // BB check
-            if(check_collision())
-            {
-              avatar.translateX(5);
-            }
+      // BB check
+      if(check_collision())
+          {
+          avatar.translateX(5);
+          }
+      }
         break;
 
       case 38:  // Far
-            avatar.translateZ(-5);
-            console.log("pos", avatar.position);
-
-            // BB check
-            if(check_collision())
-            {
-              avatar.translateZ(5);
-            }
+      if (camera_mode==2)
+      {
+      CameraTranslate();
+      avatar.translateZ(-5);
+      console.log("pos", avatar.position);
+      // BB check
+      if(check_collision())
+          {
+          avatar.translateZ(5);
+          }
+      }
+  else if (camera_mode==1)
+      {
+      cameraDrone.position.z+=8
+      }
         break;
     }
 
 
 
 });
-        
+   
+
+var postitionVector= new THREE.Vector3();
+var AvatarZ= new THREE.Vector3();
+var AvatarLookAt= new THREE.Vector3();
+
+
+console.log(avatar.quaternion);
+// AvatarQuaternion=avatar.quaternion.clone();
+AvatarQuaternion.x =0;
+AvatarQuaternion._y =0;
+AvatarQuaternion._z =0;
+AvatarQuaternion._w =0;
+
 
 function animate()
 {
@@ -471,10 +571,31 @@ function render(time)
 	if (resizeRendererToDisplaySize(renderer)) 
 	{
 		  const canvas = renderer.domElement;
-		  camera.aspect = canvas.clientWidth / canvas.clientHeight;
-		  camera.updateProjectionMatrix();
+		  if (canvas_mode==1)
+        {
+        cameraDrone.reset();
+        console.log("In the second camera condtion");
+		cameraDrone.aspect = canvas.clientWidth / canvas.clientHeight;
+		cameraDrone.updateProjectionMatrix();
+        }
+      else if (canvas_mode==2)
+        {
+        cameraDrone.saveState ();
+        console.log("In the third camera condtion");
+		    cameraAvatar.aspect = canvas.clientWidth / canvas.clientHeight;
+        postitionVector= avatar.getWorldPositio(AvatarZ);
+        // postitionVector[2]+=25;
+        console.log(postitionVector[0],postitionVector[1],postitionVector[2]);
+        console.log(cameraAvatar);
+
+		    cameraAvatar.position.set(postitionVectors);
+        }
+     else if (canvas_mode==0)
+        {
+        cameraDrone.saveState ();   
+        }
   }
-  time = time*0.01
+  time = time*0.01;
 
   cars.forEach(car => {
     
@@ -488,16 +609,49 @@ function render(time)
       k=1;
     }
     car.translateY(k*10);
+
     // headlight.position.set(car.position);
   });
+  if (camera_mode==1)
+      {
+        CameraDroneLookAtPosition.x=cameraDrone.position.z;
+        CameraDroneLookAtPosition.y=0;
+        CameraDroneLookAtPosition.z=0;
+        CameraDroneLookAtPosition.applyAxisAngle(new THREE.Vector3( 0, 0, 1 ),cameraDroneAngle);
+        // console.log(CameraDroneLookAtPosition)
+        cameraDrone.lookAt(CameraDroneLookAtPosition.x,CameraDroneLookAtPosition.y,CameraDroneLookAtPosition.z);
+		renderer.render(scene, cameraDrone);
+      }
+    else if (camera_mode==0) 
+      {
+
+      renderer.render(scene, cameraFixed);
+      }
+    else
+      {
+        cameraAvatar.position.set(avatar.position.x,avatar.position.y,avatar.position.z+25);
+        AvatarLookAt.x=0;
+        AvatarLookAt.y=100;
+        AvatarLookAt.z=25;
+        
+        cameraAvatar.up.set(0, 0, 1);
+        
+        AvatarLookAt=AvatarLookAt.applyAxisAngle( new THREE.Vector3( 0, 0, 1 ),CameraAngle);
+        cameraAvatar.lookAt(avatar.position.x+AvatarLookAt.x,avatar.position.y+AvatarLookAt.y,avatar.position.z+AvatarLookAt.z);
+        console.log(CameraAngle)
+        console.log( AvatarLookAt);
+        // console.log( [avatar.position.x+AvatarLookAt.x,avatar.position.y+AvatarLookAt.y,avatar.position.z+AvatarLookAt.z]);
+        console.log("In the third camera condtion");
+      renderer.render(scene, cameraAvatar);
+      }
 	
-		renderer.render(scene, camera);
+		// renderer.render(scene, camera);
 	
 }
 
 function update()
 {
-    controls.update();
+   
 }
 
 animate();
