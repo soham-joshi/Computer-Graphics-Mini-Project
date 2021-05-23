@@ -4,6 +4,40 @@ import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/thre
 const canvas = document.querySelector('#c');
 const renderer = new THREE.WebGLRenderer({canvas});
 const scene = new THREE.Scene();
+var CameraAngle=0,cameraDroneAngle=0;
+var CameraDroneLookAtPosition=new THREE.Vector3();
+var camera_mode=2;
+var postitionVector= new THREE.Vector3();
+var AvatarZ= new THREE.Vector3();
+var AvatarLookAt= new THREE.Vector3();
+// const cameraDrone = new THREE.PerspectiveCamera(fov, aspect, near, far);
+// cameraDrone.position.set(0, 0, 200);
+// cameraDrone.up.set(0, 0, 1);
+// cameraDrone.lookAt(300, 0, 0);
+
+// const cameraFixed = new THREE.PerspectiveCamera(fov, aspect, near, far);
+// cameraFixed.position.set(100, 400, 600);
+// cameraFixed.up.set(0, 0, 1);
+// cameraFixed.lookAt(0, 0, 0);
+const fov = 50;
+const aspect = 2;  // the canvas default
+const near = 0.1;
+const far = 10000;
+const cameraDrone = new THREE.PerspectiveCamera(fov, aspect, near, far);
+cameraDrone.position.set(0, 0, 200);
+cameraDrone.up.set(0, 0, 1);
+cameraDrone.lookAt(300, 0, 0);
+// const controls = new OrbitControls(cameraDrone, canvas);
+//Fixed Camera
+const cameraFixed = new THREE.PerspectiveCamera(fov, aspect, near, far);
+cameraFixed.position.set(100, 400, 600);
+cameraFixed.up.set(0, 0, 1);
+cameraFixed.lookAt(0, 0, 0);
+//Avatar Camera
+const cameraAvatar = new THREE.PerspectiveCamera(fov, aspect, near, far);
+// cameraAvatar.position.set(100, 400, 600 );
+// cameraAvatar.up.set(0, 0, 1);
+// cameraAvatar.lookAt(-100, 0, 0);
 
 // const CarsList=[];
 function addLight(...pos) {
@@ -44,8 +78,9 @@ AddObjects(object)
 
 class SceneObjects 
 {
-constructor(url,position,glftLoader,Name,index,Loadarg)
+constructor(url,position,glftLoader,Name,index,Loadarg,AvatarFlag)
   {
+  this.AvatarFlag=AvatarFlag;
   this.hasLight=0;
   this.url=url;
   this.name=Name;
@@ -89,21 +124,35 @@ Load(flag)
       this.root = gltf2.scene;
       // this.root.position=this.position;
       // scene.add(this.root)
-      
-      this.loadedObject = this.root.getObjectByName(this.name);
-      console.log(this.loadedObject);
-      console.log(this.loadedObject.children.slice());
-      var Object=this.loadedObject.children.slice()[this.index];
-      this.Object= Object.clone();
-      console.log(this.Object);
-      this.Object.position.set(this.position.x,this.position.y,this.position.z);
-      this.root.updateMatrixWorld();
-      this.CarsList.push(this.Object);
-      console.log(this.Objects);
+      if(this.AvatarFlag==0)
+        {
+        this.loadedObject = this.root.getObjectByName(this.name);
+
+        console.log(this.loadedObject);
+        console.log(this.loadedObject.children.slice());
+        var Object=this.loadedObject.children.slice()[this.index];
+        this.Object= Object.clone();
+        console.log(this.Object);
+        this.Object.position.set(this.position.x,this.position.y,this.position.z);
+        this.root.updateMatrixWorld();
+        this.CarsList.push(this.Object);
+        console.log(this.Objects);
+        }
+      else
+        {
+        this.root.scale.x =15;
+        this.root.scale.y =15;
+        this.root.scale.z =15;
+        this.root.rotation.x = 5*3.14159 / 2;
+        this.Object=this.root;
+        this.Object.position.set(this.position.x,this.position.y,this.position.z);
+        console.log(this.Object);
+        scene.add(this.Object);
+        }
       // this.obj = new THREE.Object3D();
       // this.obj.add(this.Object);
       // this.obj.position.set(this.position);
-      if (flag==1)
+      if (flag==1 && this.AvatarFlag==0)
         {
         scene.add(this.Object);
         }
@@ -140,12 +189,22 @@ Rotate(x,y,z)
   this.Object.rotateZ(z);
     if (this.hasLight==1)
     {
-    this.spotLight3.rotateX(x);
-    this.spotLight3.rotateY(y);
-    this.spotLight3.rotateZ(z);  
-    this.targetObject3.rotateX(x);
-    this.targetObject3.rotateY(y);
-    this.targetObject3.rotateZ(z); 
+    // this.spotLight3.rotateX(x);
+    // this.spotLight3.rotateY(y);
+    // this.spotLight3.rotateZ(z); 
+
+    var tempVector=new THREE.Vector3(-1*this.spotLight3.position.x+this.targetObject3.position.x,-1*this.spotLight3.position.y+this.targetObject3.position.y,-1*this.spotLight3.position.z+this.targetObject3.position.z);
+    tempVector.applyAxisAngle(new THREE.Vector3( 0,0,1),x);
+    tempVector.applyAxisAngle(new THREE.Vector3( 1,0,0),x);
+    tempVector.applyAxisAngle(new THREE.Vector3( 1,0,0),z);
+    tempVector.x=this.spotLight3.position.x+tempVector.x;
+    tempVector.y=this.spotLight3.position.y+tempVector.y;
+    tempVector.z=this.spotLight3.position.z+tempVector.z;
+    this.targetObject3.position.x=tempVector.x;
+    this.targetObject3.position.y=tempVector.y;
+    this.targetObject3.position.z=tempVector.z;
+    // this.targetObject3.rotateY(y);
+    // this.targetObject3.rotateZ(z); 
     }
   }
 
@@ -199,22 +258,29 @@ class SceneStationaryObject
 }
 
 
-var CarDummy=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(0,0,100),new GLTFLoader(),'Cars',1,1 );
+
+var CarDummy=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(500,0,100),new GLTFLoader(),'Cars',1,1,0 );
 CarDummy.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(0,100,0))
+
+
+var SceneAvatar=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/knight/KnightCharacter.gltf',new THREE.Vector3(0,0,0),new GLTFLoader(),'Cars',1,1,1 );
+// Avatar.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(0,100,0))
 // CarDummy.Load(1);
 // CarDummy.AddToScene();
 console.log(CarDummy.CarsList);
 console.log(CarDummy.Objects);
 // console.log(CarsList[0]);
-var Light1=new Scenelights('https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(0,0,100),new GLTFLoader(),'Lights',1,1,new THREE.Vector3(0,0,100),new THREE.Vector3(100,0,0));
+var Light1=new SceneObjects('https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(0,0,100),new GLTFLoader(),'Lights',1,1,0);
+Light1.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(100,0,0));
+
 var collidableMeshList = [];
 
 
 
-const fov = 50;
-const aspect = 2;  // the canvas default
-const near = 0.1;
-const far = 10000;
+// const fov = 50;
+// const aspect = 2;  // the canvas default
+// const near = 0.1;
+// const far = 10000;
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 camera.position.set(0, -400, 600);
 camera.up.set(0, 0, 1);
@@ -223,6 +289,9 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableKeys = false;
 controls.target.set(0, 5, 0);
 controls.update();
+cameraAvatar.position.set(SceneAvatar.position );
+cameraAvatar.up.set(0, 0, 1);
+// cameraAvatar.lookAt(100, 0, 0);
 
 const objects = [];
 
@@ -317,7 +386,7 @@ const manager = new THREE.LoadingManager();
       root.scale.z =15;
       root.rotation.x = 5*3.14159 / 2;
       avatar = root;
-      scene.add(root);
+      // scene.add(root);
       objects.push(avatar);
     //   const box = new THREE.Box3().setFromObject(root);
 
@@ -621,35 +690,67 @@ window.addEventListener("keydown", function(eee){
 
     switch(eee.keyCode)
     {
+      case 67:  // camera mode change 
+      camera_mode=camera_mode+1;
+      camera_mode=camera_mode%3;
+      break;
+      case 82:
+            if (camera_mode==2)
+                {
+                SceneAvatar.Rotate(0,0.05,0);
+                CameraAngle+=0.05
+                // console.log( AvatarLookAt);
+                }
+            else if (camera_mode==1)
+                {
+                cameraDroneAngle+=0.05
+                }
+        break;
+      case 84:
+        if (camera_mode==2)
+            {
+              SceneAvatar.Rotate(0,-0.05,0);
+            CameraAngle-=0.05
+            // console.log( AvatarLookAt);
+            }
+        else if(camera_mode==1)
+            {
+            cameraDroneAngle-=0.05
+            }
+      break;
       case 39: // Right
-        avatar.translateX(5);
+    
+        SceneAvatar.Translate(5,0,0);
+        
         // MovingCube.translateX(5);
         console.log("pos", avatar.position);
         
         // BB check
         if(check_collision())
         {
-          avatar.translateX(-5);
+          SceneAvatar.Translate(-5,0,0);
           // console.log("balalalalala");
         }
         
         break;
-      case 84: //turn
-        // const quaternion = new THREE.Quaternion();
-        // quaternion.setFromAxisAngle( new THREE.Vector3( 0, 0, 1 ), 0.1 );
-        // MovingCube.translateY(5);
-        // MovingCube1.(-1);
-        // MovingCube2.rotateZ(-1);
-        // const vector = MovingCube.position;
-        // vector.applyQuaternion( quaternion );
-          // MovingCube.rotateZ(0.1);
-          // MovingCube.translateY(10);
-          break;
       case 40:  // Near 
-            avatar.translateZ(-5);
+            if (camera_mode==2)
+                {
+                SceneAvatar.Translate(0,0,-5);
             // MovingCube.translateY(-5);
-            console.log("pos", avatar.position);
-
+                console.log("pos", avatar.position);
+                if(check_collision())
+                {
+                  SceneAvatar.Translate(0,0,5);
+                }
+            }
+            else if (camera_mode==1)
+            {
+              if(cameraDrone.position.z>50)
+                {
+                cameraDrone.position.z-=8;
+                }
+            }
             // BB check
             // if(check_collision())
             // {
@@ -658,9 +759,9 @@ window.addEventListener("keydown", function(eee){
         break;
 
       case 37:  // Left
-            avatar.translateX(-5);
+            SceneAvatar.Translate(-5,0,0);
             // MovingCube.translateX(-5);
-            console.log("pos", avatar.position);
+            console.log("pos", SceneAvatar.position);
 
             // BB check
             // if(check_collision())
@@ -670,11 +771,23 @@ window.addEventListener("keydown", function(eee){
         break;
 
       case 38:  // Far
-            console.log("janviii", avatar.position);
-            avatar.translateZ(5);
+            // console.log("janviii", SceneAvatar.position);
+            // SceneAvatar.Translate(0,-5,-5);
+            if (camera_mode==2)
+            {
+            SceneAvatar.Translate(0,0,5);
             // MovingCube.translateY(5);
-            console.log("pos", avatar.position);
-
+            // console.log("pos", SceneAvatar.position);
+            if(check_collision())
+              {
+              SceneAvatar.Translate(0,0,-5);
+              }
+            }
+            else if (camera_mode==1)
+                {
+                  cameraDrone.position.z+=8;
+                
+                }
             // BB check
             // if(check_collision())
             // {
@@ -727,8 +840,39 @@ function render(time)
       // headlight.position.set(car.position);
     });
     
-      renderer.render(scene, camera);
+      // renderer.render(scene, camera);
   }
+  if (camera_mode==1)
+    {
+    CameraDroneLookAtPosition.x=cameraDrone.position.z;
+    CameraDroneLookAtPosition.y=0;
+    CameraDroneLookAtPosition.z=0;
+    CameraDroneLookAtPosition.applyAxisAngle(new THREE.Vector3( 0, 0, 1 ),cameraDroneAngle);
+        // console.log(CameraDroneLookAtPosition)
+    cameraDrone.lookAt(CameraDroneLookAtPosition.x,CameraDroneLookAtPosition.y,CameraDroneLookAtPosition.z);
+		renderer.render(scene, cameraDrone);
+    }
+  else if (camera_mode==0) 
+    {
+    renderer.render(scene, cameraFixed);
+    }
+  else
+    {
+    cameraAvatar.position.set(SceneAvatar.Object.position.x,SceneAvatar.Object.position.y,SceneAvatar.Object.position.z+75);
+    AvatarLookAt.x=0;
+    AvatarLookAt.y=-100;
+    AvatarLookAt.z=75;
+    cameraAvatar.aspect = canvas.clientWidth / canvas.clientHeight;
+    cameraAvatar.up.set(0, 0, 1);
+        
+    AvatarLookAt=AvatarLookAt.applyAxisAngle( new THREE.Vector3( 0, 0, 1 ),CameraAngle);
+    cameraAvatar.lookAt(SceneAvatar.Object.position.x+AvatarLookAt.x,SceneAvatar.Object.position.y+AvatarLookAt.y,SceneAvatar.Object.position.z+AvatarLookAt.z);
+    console.log(CameraAngle)
+    console.log( AvatarLookAt);
+        // console.log( [avatar.position.x+AvatarLookAt.x,avatar.position.y+AvatarLookAt.y,avatar.position.z+AvatarLookAt.z]);
+    console.log("In the third camera condtion");
+    renderer.render(scene, cameraAvatar);
+    }
 	
 }
 
