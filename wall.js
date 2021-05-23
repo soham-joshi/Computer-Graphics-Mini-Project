@@ -55,7 +55,7 @@ AddObjects(object)
 
 class SceneObjects 
 {
-constructor(url,position,glftLoader,Name,index,Loadarg,AvatarFlag,x,y,z)
+constructor(url,position,glftLoader,Name,index,Loadarg,AvatarFlag,x,y,z,parent,child_flag)
   {
   this.AvatarFlag=AvatarFlag;
   this.hasLight=0;
@@ -68,6 +68,9 @@ constructor(url,position,glftLoader,Name,index,Loadarg,AvatarFlag,x,y,z)
   this.index=index;
   this.Objects=[];
   this.spotLight3 = new THREE.SpotLight( 0xFFFFFF);
+  this.parent = parent;
+  this.k=1;
+  this.child_flag = child_flag;
   // this.glftLoader=glftLoader;
   // console.log( this.glftLoader);
 //   this.CarsList=[];
@@ -92,7 +95,7 @@ AddLight(lightPosition,TargetPosition)
   this.spotLight3.shadow.camera.far = 4000;
   this.spotLight3.shadow.camera.fov = 30;
   scene.add(this.spotLight3);
-  console.log("tiger",this.targetObject3.position); 
+  // console.log("tiger",this.targetObject3.position); 
   }
 
 Load(flag)
@@ -136,9 +139,14 @@ Load(flag)
       // this.obj = new THREE.Object3D();
       // this.obj.add(this.Object);
       // this.obj.position.set(this.position);
-      if (flag==1 && this.AvatarFlag==0)
+      if (flag==1 && this.AvatarFlag==0 && this.child_flag==0)
         {
         scene.add(this.Object);
+        }
+        if(this.AvatarFlag==0 && this.child_flag==1)
+        {
+          console.log("ka", this.parent.Object);
+          this.parent.Object.add(this.Object);
         }
     //   console.log(this.CarsList); 
       this.flag=1;
@@ -242,9 +250,10 @@ class SceneStationaryObject
 }
 
 
-var CarDummy=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(-400,0,50),new GLTFLoader(),'Cars',1,1,0, Math.PI/2,  -2*Math.PI/2, -Math.PI/2);
+var CarDummy=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(-400,0,50),new GLTFLoader(),'Cars',1,1,0, Math.PI/2,  2*Math.PI/2, -Math.PI/2, '', 0);
+var Child_CarDummy=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(0,0,-200),new GLTFLoader(),'Cars',1,Math.PI,0,0,  Math.PI/2, 0, CarDummy,1);
 
-
+// CarDummy.Object.add(Child_CarDummy.Object);
 // , },[Math.PI * .5, -2*Math.PI, 0]
 //         [Math.PI * .5, -2*Math.PI, 0], },
 //          [Math.PI * .5, -2*Math.PI, 0], },
@@ -258,9 +267,11 @@ console.log(CarDummy.Objects);
 // CarDummy1.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(0,100,0))
 // var CarDummy2=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(600,0,50),[Math.PI * .5, -2*Math.PI, 0], new GLTFLoader(),'Cars',16,1,0);
 // CarDummy2.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(0,100,0))
-var CarDummy1=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(150,0,50),new GLTFLoader(),'Cars',2,1 ,0, Math.PI/2, - 2*Math.PI/2, -Math.PI/2);
-CarDummy1.AddLight(new THREE.Vector3(150,0,50),new THREE.Vector3(150,10,50))
-var CarDummy2=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(600,0,50), new GLTFLoader(),'Cars',16,1,0, Math.PI/2,  Math.PI/2, -Math.PI/2);
+var CarDummy1=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(150,0,50),new GLTFLoader(),'Cars',2,1 ,0, Math.PI/2, - 2*Math.PI/2, -Math.PI/2, '',0);
+// CarDummy1.AddLight(new THREE.Vector3(150,0,50),new THREE.Vector3(150,10,50))
+var Child_CarDummy1=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(0,0,-200),new GLTFLoader(),'Cars',2,Math.PI,0,0,  Math.PI/2, 0, CarDummy1,1);
+var CarDummy2=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(600,0,50), new GLTFLoader(),'Cars',16,1,0, Math.PI/2,  Math.PI/2, -Math.PI/2, '',0);
+var Child_CarDummy2=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(0,0,-200),new GLTFLoader(),'Cars',16,Math.PI,0,0,  Math.PI/2, 0, CarDummy2,1);
 // CarDummy2.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(0,100,0))
 // console.log(CarsList[0]);
 // var Light1=new SceneObjects('https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(0,0,100), new GLTFLoader(),'Lights',1,1,0);
@@ -612,32 +623,46 @@ wall1BBox.setFromObject(wall_mesh1);
 console.log("janvi", wall1BBox.intersectsBox(cubeBBox));
 
 console.log(MovingCube.geometry.type);
-
-
+let MovableObj = [CarDummy, CarDummy1, CarDummy2]
+// collidableMeshList.push(CarDummy.Object);
+// collidableMeshList.push(CarDummy1.Object);
+// collidableMeshList.push(CarDummy2.Object);
+var coll_mode = 0;
 function check_collision()
 {
     let num_collisions = 0;
 
-    for(let i = 0; i < collidableMeshList.length; i++)
-    {
-          for(let j=1; j<objects.length;j++)
-          {
+    MovableObj.forEach(obj => {
+    
+         
             let temp_obj_1_bbox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-            temp_obj_1_bbox.setFromObject(collidableMeshList[i]);
+            temp_obj_1_bbox.setFromObject(obj.Object);
             
             let temp_obj_2_bbox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-            temp_obj_2_bbox.setFromObject(objects[j]);
-            console.log("mmmm",temp_obj_1_bbox,i, temp_obj_2_bbox, j);
+            temp_obj_2_bbox.setFromObject(Avatar.Object);
+            console.log("mmmm",temp_obj_1_bbox,obj, temp_obj_2_bbox);
             let is_collision = temp_obj_1_bbox.intersectsBox(temp_obj_2_bbox)
             console.log("Intersection:", is_collision);
 
             if(is_collision)
             {
-              console.log("januuuu", "cl",i, "obj", j);
+              console.log("januuuu", "cl",obj);
+              if(coll_mode == 1){
+                obj.k *= -1;
+              }
+              else
+              {
+                // Avatar.Object.position.set({x:obj.Object.position.x, y:obj.Object.position.y, z: obj.Object.position.z+100});
+                Avatar.Object.translateZ(5);
+                Avatar.Object.rotateY(Math.PI/2);
+                Avatar.Object.translateX(-20);
+                obj.Object.add(Avatar.Object);
+              }
+              
               num_collisions ++ ;
-            }
+      
           }
-    }
+    });
 
 
     for(let i = 1; i < objects.length ; i++)
@@ -681,14 +706,14 @@ window.addEventListener("keydown", function(eee){
     switch(eee.keyCode)
     {
       case 39: // Right
-        avatar.translateX(5);
+        Avatar.Object.translateX(5);
         // MovingCube.translateX(5);
         console.log("pos", avatar.position);
         
         // BB check
         if(check_collision())
         {
-          avatar.translateX(-5);
+          Avatar.Object.translateX(-5);
           // console.log("balalalalala");
         }
         
@@ -705,7 +730,7 @@ window.addEventListener("keydown", function(eee){
           // MovingCube.translateY(10);
           break;
       case 40:  // Near 
-            avatar.translateZ(-5);
+            Avatar.Object.translateZ(5);
             // MovingCube.translateY(-5);
             console.log("pos", avatar.position);
 
@@ -717,7 +742,7 @@ window.addEventListener("keydown", function(eee){
         break;
 
       case 37:  // Left
-            avatar.translateX(-5);
+          Avatar.Object.translateX(-5);
             // MovingCube.translateX(-5);
             console.log("pos", avatar.position);
 
@@ -729,10 +754,10 @@ window.addEventListener("keydown", function(eee){
         break;
 
       case 38:  // Far
-            console.log("janviii", avatar.position);
-            avatar.translateZ(5);
+            // console.log("janviii", avatar.position);
+            Avatar.Object.translateZ(-5);
             // MovingCube.translateY(5);
-            console.log("pos", avatar.position);
+            // console.log("pos", Avatar.position);
 
             // BB check
             // if(check_collision())
@@ -754,7 +779,7 @@ function animate()
     update();
 
 }
-let k=1;
+// let k=1;
 function render()
 {
 CarsList.forEach(car => {
@@ -764,30 +789,30 @@ CarsList.forEach(car => {
         
         if(car.Object.position.y >= 500)
         {
-            k=-1;
+            car.k=-1;
         }
 
         else if(car.Object.position.y <= -500)
         {
-            k=1;
+            car.k=1;
         }
-        car.Object.translateZ(k*10);
+        car.Object.translateZ(car.k*10);
     }
 });
 if(CarDummy2.flag==1)
     {
       CarDummy2.AddLight(CarDummy2.Object.position, {x:CarDummy2.Object.position.x, y:CarDummy2.Object.position.y+10, z: CarDummy2.Object.position.z})  
-      console.log("lala",CarDummy2.Object.position);
+      // console.log("lala",CarDummy2.Object.position);
         if(CarDummy2.Object.position.y >= 500)
         {
-            k=-1;
+            CarDummy2.k=-1;
         }
 
         else if(CarDummy2.Object.position.y <= -500)
         {
-            k=1;
+            CarDummy2.k=1;
         }
-        CarDummy2.Object.translateX(k*10);
+        CarDummy2.Object.translateX(CarDummy2.k*10);
     }
     // console.log(CarDummy.Object.position);
     // CarDummy.Rotate(0,0,Math.PI/2);
