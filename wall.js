@@ -281,62 +281,67 @@ var collidableMeshList = [];
 const CarsList=[CarDummy, CarDummy1];
 
 
-const fov = 50;
-const aspect = 2;  // the canvas default
-const near = 0.1;
-const far = 10000;
-const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-camera.position.set(0, -400, 600);
-camera.up.set(0, 0, 1);
-camera.lookAt(0, 0, 0);
-const controls = new OrbitControls(camera, canvas);
-controls.enableKeys = false;
-controls.target.set(0, 5, 0);
-controls.update();
+
+function createCamera()
+{
+  const fov = 50;
+  const aspect = 2;  // the canvas default
+  const near = 0.1;
+  const far = 10000;
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+  camera.position.set(0, -400, 600);
+  camera.up.set(0, 0, 1);
+  camera.lookAt(0, 0, 0);
+
+  return camera;
+}
+
+function createControls()
+{
+  const controls = new OrbitControls(camera, canvas);
+  controls.enableKeys = false;
+  controls.target.set(0, 5, 0);
+  controls.update();
+
+  return controls;
+}
+
+
+function createGround()
+{
+
+  // Ground
+  var plane_geometry = new THREE.PlaneGeometry( 1000, 1000, 1, 1 );
+  var ground_material = new THREE.MeshBasicMaterial( { color: 0x402A2A } );
+  var ground_mesh = new THREE.Mesh( plane_geometry, ground_material );
+  ground_mesh.material.side = THREE.DoubleSide;
+
+  return ground_mesh;
+}
+
+
+const camera = createCamera();
+const controls = createControls();
+
 
 const objects = [];
 
-// Ground
-var plane_geometry = new THREE.PlaneGeometry( 1000, 1000, 1, 1 );
-var ground_material = new THREE.MeshBasicMaterial( { color: 0x402A2A } );
-var ground_mesh = new THREE.Mesh( plane_geometry, ground_material );
-ground_mesh.material.side = THREE.DoubleSide;
-// ground_mesh.rotation.z = 3.14/2;
+const ground_mesh = createGround();
 scene.add( ground_mesh ); 
 objects.push(ground_mesh);
 
 
 // Cube
-var cubeGeometry1 = new THREE.BoxGeometry(50,50,50, 1, 1, 1);
-var wireMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe:false } );
-let MovingCube = new THREE.Mesh( cubeGeometry1, wireMaterial );
-MovingCube.position.set(20, -400, 26);
-MovingCube.geometry.computeBoundingBox();
-var cubeBBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+// var cubeGeometry = new THREE.BoxGeometry(50,50,50, 1, 1, 1);
+// var wireMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe:true } );
+// let MovingCube = new THREE.Mesh( cubeGeometry, wireMaterial );
+// MovingCube.position.set(20, 50, 26);
+// MovingCube.geometry.computeBoundingBox();
+// var cubeBBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
 
     // console.log("cube bbox", cubeBBox);
-scene.add( MovingCube );
+// scene.add( MovingCube );
 // objects.push(MovingCube);
-
-//cube 2
-var cubeGeometry2 = new THREE.BoxGeometry(50,50,50, 1, 1, 1);
-var wireMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe:false } );
-let MovingCube1 = new THREE.Mesh( cubeGeometry2, wireMaterial );
-MovingCube1.position.set(-60, -15, 26);
-MovingCube1.geometry.computeBoundingBox();
-var cubeBBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-MovingCube.add(MovingCube1);
-// objects.push(MovingCube1);
-
-//cube 3
-var cubeGeometry3 = new THREE.BoxGeometry(50,50,50, 1, 1, 1);
-var wireMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe:false } );
-let MovingCube2 = new THREE.Mesh( cubeGeometry3, wireMaterial );
-MovingCube2.position.set(-120, -15, 26);
-MovingCube2.geometry.computeBoundingBox();
-var cubeBBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-MovingCube.add(MovingCube2);
-// objects.push(MovingCube2);
 
 // Walls
 var wallGeometry = new THREE.BoxGeometry( 100, 100, 20, 1, 1, 1 );
@@ -488,6 +493,36 @@ const manager = new THREE.LoadingManager();
 
     const lights = [];
     const url2 = 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf';
+    // gltfLoader.load(url2, (gltf2) => {
+      // const root = gltf2.scene;
+      // console.log("root", root);
+      // // root.scale.x =15;
+      // // root.scale.y =15;
+      // // root.scale.z =15;
+      // root.rotation.x = 5*3.14159 / 2;
+      // // avatar = root;
+      // // scene.add(root);
+      // const loadedLights = root.getObjectByName('Lights');
+      // const fixes = [
+      //   { prefix: 'Light_3', x:-100, y: -100,  rot: [Math.PI, 2*Math.PI, 2*Math.PI ], },
+      //   { prefix: 'Light_2', x:-200,y: 100, z:-200, rot: [0, Math.PI, 0], },
+      //   { prefix: 'Light_1', x:100,y: 40, rot: [0, Math.PI, 0], },
+      // ];
+      
+
+      // root.updateMatrixWorld();
+      // for (const light of loadedLights.children.slice()) {
+      //   console.log("lightt", light);
+      //   const fix1 = fixes.find(fix1 => light.name.startsWith(fix1.prefix));
+      //   const obj = new THREE.Object3D();
+      //   light.position.set(0, fix1.y, 0);
+      //   light.rotation.set(...fix1.rot);
+      //   obj.add(light);
+      //   // car.rotation.x = 5*3.14159 / 2;
+      //   scene.add(obj);
+      //   lights.push(obj);
+      // }
+    // });
     gltfLoader.load(url2, (gltf2) => {
       const root = gltf2.scene;
       console.log("root", root);
@@ -605,7 +640,7 @@ const skyColor = 0xB1E1FF;  // light blue
 // // keyboard
 // var keyboard = new THREEx.KeyboardState();
 
-console.log(MovingCube.geometry.attributes.position.count);
+// console.log(MovingCube.geometry.attributes.position.count);
 
 function resizeRendererToDisplaySize(renderer) 
 {
@@ -618,9 +653,9 @@ function resizeRendererToDisplaySize(renderer)
 	}
 	return needResize;
 }
-cubeBBox.setFromObject(MovingCube);
-wall1BBox.setFromObject(wall_mesh1);
-console.log("janvi", wall1BBox.intersectsBox(cubeBBox));
+// cubeBBox.setFromObject(MovingCube);
+// wall1BBox.setFromObject(wall_mesh1);
+// console.log("janvi", wall1BBox.intersectsBox(cubeBBox));
 
 console.log(MovingCube.geometry.type);
 let MovableObj = [CarDummy, CarDummy1, CarDummy2]
@@ -782,8 +817,24 @@ function animate()
 // let k=1;
 function render()
 {
-CarsList.forEach(car => {
-  if(car.flag==1)
+	if (resizeRendererToDisplaySize(renderer)) 
+	{
+		  const canvas = renderer.domElement;
+		  camera.aspect = canvas.clientWidth / canvas.clientHeight;
+		  camera.updateProjectionMatrix();
+  }
+  time = time*0.01
+	
+	renderer.render(scene, camera);
+	
+}
+
+function update()
+{
+
+  cars.forEach(car => {
+    
+    if(car.position.y >= 500)
     {
          car.AddLight(car.Object.position, {x:car.Object.position.x, y:car.Object.position.y+10, z: car.Object.position.z})
         
@@ -822,31 +873,10 @@ if(CarDummy2.flag==1)
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
         camera.updateProjectionMatrix();
     }
-    // time = time*0.01;
-  // console.log(cars[0]);
-    // cars.forEach(car => {
-      
-    //   if(car.position.y >= 500)
-    //   {
-    //     k=-1;
-    //   }
+    car.translateY(k*10);
+    // headlight.position.set(car.position);
+  // });
 
-    //   else if(car.position.y <= -500)
-    //   {
-    //     k=1;
-    //   }
-    //   car.translateY(k*10);
-
-      // headlight.position.set(car.position);
-    // });
-    
-      renderer.render(scene, camera);
-  }
-	
-
-
-function update()
-{
     controls.update();
 }
 
