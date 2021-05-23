@@ -67,6 +67,7 @@ constructor(url,position,glftLoader,Name,index,Loadarg,AvatarFlag,x,y,z)
   this.z = z;
   this.index=index;
   this.Objects=[];
+  this.spotLight3 = new THREE.SpotLight( 0xFFFFFF);
   // this.glftLoader=glftLoader;
   // console.log( this.glftLoader);
 //   this.CarsList=[];
@@ -78,7 +79,6 @@ AddLight(lightPosition,TargetPosition)
   {
   this.hasLight=1;
   this.lightPosition=lightPosition;
-  this.spotLight3 = new THREE.SpotLight( 0xFFFFFF);
   this.spotLight3.position.set(this.lightPosition.x,this.lightPosition.y,this.lightPosition.z);
   this.spotLight3.castShadow = true;
   this.targetObject3 = new THREE.Object3D();
@@ -92,7 +92,7 @@ AddLight(lightPosition,TargetPosition)
   this.spotLight3.shadow.camera.far = 4000;
   this.spotLight3.shadow.camera.fov = 30;
   scene.add(this.spotLight3);
-  console.log(this.targetObject3); 
+  console.log("tiger",this.targetObject3.position); 
   }
 
 Load(flag)
@@ -259,12 +259,12 @@ console.log(CarDummy.Objects);
 // var CarDummy2=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(600,0,50),[Math.PI * .5, -2*Math.PI, 0], new GLTFLoader(),'Cars',16,1,0);
 // CarDummy2.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(0,100,0))
 var CarDummy1=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(150,0,50),new GLTFLoader(),'Cars',2,1 ,0, Math.PI/2, - 2*Math.PI/2, -Math.PI/2);
-CarDummy1.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(0,100,0))
+CarDummy1.AddLight(new THREE.Vector3(150,0,50),new THREE.Vector3(150,10,50))
 var CarDummy2=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(600,0,50), new GLTFLoader(),'Cars',16,1,0, Math.PI/2,  Math.PI/2, -Math.PI/2);
-CarDummy2.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(0,100,0))
+// CarDummy2.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(0,100,0))
 // console.log(CarsList[0]);
-var Light1=new SceneObjects('https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(0,0,100), new GLTFLoader(),'Lights',1,1,0);
-Light1.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(100,0,0));
+// var Light1=new SceneObjects('https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(0,0,100), new GLTFLoader(),'Lights',1,1,0);
+// Light1.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(100,0,0));
 
 var collidableMeshList = [];
 const CarsList=[CarDummy, CarDummy1];
@@ -517,25 +517,25 @@ const manager = new THREE.LoadingManager();
         lights.push(obj);
       }
     });
-    const spotLight = new THREE.SpotLight( 0xFFFFFF);
-    spotLight.position.set( -100, 200,100 );
+//     const spotLight = new THREE.SpotLight( 0xFFFFFF);
+//     spotLight.position.set( -100, 200,100 );
 
-    spotLight.castShadow = true;
-    const targetObject = new THREE.Object3D();
-    scene.add(targetObject);
-    targetObject.translateX(-100);
-    targetObject.translateY(200);
-    targetObject.translateZ(0)
-    spotLight.target = targetObject;
+//     spotLight.castShadow = true;
+//     const targetObject = new THREE.Object3D();
+//     scene.add(targetObject);
+//     targetObject.translateX(-100);
+//     targetObject.translateY(200);
+//     targetObject.translateZ(0)
+//     spotLight.target = targetObject;
     
-    spotLight.shadow.mapSize.width = 1024;
-    spotLight.shadow.mapSize.height = 1024;
+//     spotLight.shadow.mapSize.width = 1024;
+//     spotLight.shadow.mapSize.height = 1024;
 
-    spotLight.shadow.camera.near = 500;
-    spotLight.shadow.camera.far = 4000;
-    spotLight.shadow.camera.fov = 30;
+//     spotLight.shadow.camera.near = 500;
+//     spotLight.shadow.camera.far = 4000;
+//     spotLight.shadow.camera.fov = 30;
 
-scene.add( spotLight );
+// scene.add( spotLight );
 
 
 const skyColor = 0xB1E1FF;  // light blue
@@ -760,8 +760,8 @@ function render()
 CarsList.forEach(car => {
   if(car.flag==1)
     {
-        // car.AddLight(car.Object.position, {x:car.Object.position.x, y:car.Object.position.y+10, z: car.Object.position.z})
-        console.log("lala",car.Object.position);
+         car.AddLight(car.Object.position, {x:car.Object.position.x, y:car.Object.position.y+10, z: car.Object.position.z})
+        
         if(car.Object.position.y >= 500)
         {
             k=-1;
@@ -776,7 +776,8 @@ CarsList.forEach(car => {
 });
 if(CarDummy2.flag==1)
     {
-        console.log("lala",CarDummy2.Object.position);
+      CarDummy2.AddLight(CarDummy2.Object.position, {x:CarDummy2.Object.position.x, y:CarDummy2.Object.position.y+10, z: CarDummy2.Object.position.z})  
+      console.log("lala",CarDummy2.Object.position);
         if(CarDummy2.Object.position.y >= 500)
         {
             k=-1;
