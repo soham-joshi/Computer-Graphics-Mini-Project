@@ -3,12 +3,272 @@ import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/t
 import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/loaders/GLTFLoader.js';
 const canvas = document.querySelector('#c');
 const renderer = new THREE.WebGLRenderer({canvas});
+const scene = new THREE.Scene();
+
+// const cameraDrone = new THREE.PerspectiveCamera(fov, aspect, near, far);
+// cameraDrone.position.set(0, 0, 200);
+// cameraDrone.up.set(0, 0, 1);
+// cameraDrone.lookAt(300, 0, 0);
+
+// const cameraFixed = new THREE.PerspectiveCamera(fov, aspect, near, far);
+// cameraFixed.position.set(100, 400, 600);
+// cameraFixed.up.set(0, 0, 1);
+// cameraFixed.lookAt(0, 0, 0);
 
 
+
+function addLight(...pos) {
+  const color = 0xFFFFFF;
+  const intensity = 1;
+  const light = new THREE.DirectionalLight(color, intensity);
+  light.position.set(...pos);
+  scene.add(light);
+  scene.add(light.target);
+}
+
+class WholeScene
+{
+constructor()
+  {
+  this.ObjectsList=[];  
+  }
+
+AddObjects(object)
+  {
+  this.ObjectsList.push(object);
+  }
+  CollisionDetector()
+    {
+    var i,j;
+    for(i=0;i<this.ObjectsList;i++)
+      {  
+      for(j=0;j<this.ObjectsList;j++)
+        {
+        if(i!=j)
+          {
+          
+          }
+        }
+      }
+    }
+}
+
+class SceneObjects 
+{
+constructor(url,position,glftLoader,Name,index,Loadarg,AvatarFlag,x,y,z)
+  {
+  this.AvatarFlag=AvatarFlag;
+  this.hasLight=0;
+  this.url=url;
+  this.name=Name;
+  this.position=position;
+  this.x = x;
+  this.y = y;
+  this.z = z;
+  this.index=index;
+  this.Objects=[];
+  this.spotLight3 = new THREE.SpotLight( 0xFFFFFF);
+  // this.glftLoader=glftLoader;
+  // console.log( this.glftLoader);
+//   this.CarsList=[];
+
+  this.Load(Loadarg);
+
+  }
+AddLight(lightPosition,TargetPosition)
+  {
+  this.hasLight=1;
+  this.lightPosition=lightPosition;
+  this.spotLight3.position.set(this.lightPosition.x,this.lightPosition.y,this.lightPosition.z);
+  this.spotLight3.castShadow = true;
+  this.targetObject3 = new THREE.Object3D();
+  this.TargetPosition=TargetPosition;
+  this.targetObject3.position.set(this.TargetPosition.x,this.TargetPosition.y,this.TargetPosition.z);
+  scene.add(this.targetObject3);
+  this.spotLight3.target = this.targetObject3;        
+  this.spotLight3.shadow.mapSize.width = 1024;
+  this.spotLight3.shadow.mapSize.height = 1024;
+  this.spotLight3.shadow.camera.near = 500;
+  this.spotLight3.shadow.camera.far = 4000;
+  this.spotLight3.shadow.camera.fov = 30;
+  scene.add(this.spotLight3);
+  console.log("tiger",this.targetObject3.position); 
+  }
+
+Load(flag)
+  {
+  this.flag=0;
+  const gltfLoader = new GLTFLoader();
+  gltfLoader.load(this.url, (gltf2) => {
+      this.root = gltf2.scene;
+      // this.root.position=this.position;
+      // scene.add(this.root)
+      if(this.AvatarFlag==0)
+        {
+        this.loadedObject = this.root.getObjectByName(this.name);
+
+        console.log(this.loadedObject);
+        console.log(this.loadedObject.children.slice());
+        var Object=this.loadedObject.children.slice()[this.index];
+        this.Object= Object.clone();
+        console.log(this.Object);
+        this.Object.position.set(this.position.x,this.position.y,this.position.z);
+        this.Object.rotateX(this.x);
+        this.Object.rotateY(this.y);
+        this.Object.rotateZ(this.z);
+        // this.Object.rotation.set(this.rotation.x,this.rotation.y,this.rotation.z);
+        this.root.updateMatrixWorld();
+        // this.CarsList.push(this.Object);
+        console.log(this.Objects);
+        }
+      else
+        {
+        this.root.scale.x =15;
+        this.root.scale.y =15;
+        this.root.scale.z =15;
+        this.root.rotation.x = 5*3.14159 / 2;
+        this.Object=this.root;
+        this.Object.position.set(this.position.x,this.position.y,this.position.z);
+        // this.Object.rotation.set(this.rotation.x,this.rotation.y,this.rotation.z);
+        console.log(this.Object);
+        scene.add(this.Object);
+        }
+      // this.obj = new THREE.Object3D();
+      // this.obj.add(this.Object);
+      // this.obj.position.set(this.position);
+      if (flag==1 && this.AvatarFlag==0)
+        {
+        scene.add(this.Object);
+        }
+    //   console.log(this.CarsList); 
+      this.flag=1;
+      }); 
+      
+  // while(this.flag!=1){
+  //     console.log("asdasdasd");
+  //     }
+      console.log(this.Object);
+  }
+
+Translate(x,y,z)
+  {
+  this.Object.translateX(x);
+  this.Object.translateY(y);
+  this.Object.translateZ(z);
+  if (this.hasLight==1)
+    {
+    this.spotLight3.translateX(x);
+    this.spotLight3.translateY(y);
+    this.spotLight3.translateZ(z);  
+    this.targetObject3.translateX(x);
+    this.targetObject3.translateY(y);
+    this.targetObject3.translateZ(z); 
+    }
+  }
+
+Rotate(x,y,z)
+  {
+  this.Object.rotateX(x);
+  this.Object.rotateY(y);
+  this.Object.rotateZ(z);
+    if (this.hasLight==1)
+    {
+    // this.spotLight3.rotateX(x);
+    // this.spotLight3.rotateY(y);
+    // this.spotLight3.rotateZ(z); 
+
+    var tempVector=new THREE.Vector3(-1*this.spotLight3.position.x+this.targetObject3.position.x,-1*this.spotLight3.position.y+this.targetObject3.position.y,-1*this.spotLight3.position.z+this.targetObject3.position.z);
+    tempVector.applyAxisAngle(new THREE.Vector3( 0,1,0),x);
+    tempVector.applyAxisAngle(new THREE.Vector3( 0,0,1),y);
+    tempVector.applyAxisAngle(new THREE.Vector3( 1,0,0),z);
+    tempVector.x=this.spotLight3.position.x+tempVector.x;
+    tempVector.y=this.spotLight3.position.y+tempVector.y;
+    tempVector.z=this.spotLight3.position.z+tempVector.z;
+    this.targetObject3.position.x=tempVector.x;
+    this.targetObject3.position.y=tempVector.y;
+    this.targetObject3.position.z=tempVector.z;
+    // this.targetObject3.rotateY(y);
+    // this.targetObject3.rotateZ(z); 
+    }
+  }
+
+AddToScene()
+    {
+      scene.add(this.Object);
+    }
+
+getObjects()
+      {
+      return this.Objects;
+      }
+
+}
+
+class Scenelights extends SceneObjects
+{
+constructor(url,Meshposition,glftLoader,Name,index,Loadarg,lightPosition,TargetPosition)
+  {
+  
+  super(url,Meshposition,glftLoader,Name,index,Loadarg);
+  this.lightPosition=lightPosition;
+  this.spotLight3 = new THREE.SpotLight( 0xFFFFFF);
+  this.spotLight3.position.set(this.lightPosition.x,this.lightPosition.y,this.lightPosition.z);
+
+  this.spotLight3.castShadow = true;
+  this.targetObject3 = new THREE.Object3D();
+  this.TargetPosition=TargetPosition;
+  this.targetObject3.position.set(this.TargetPosition.x,this.TargetPosition.y,this.TargetPosition.z);
+  scene.add(this.targetObject3);
+  this.spotLight3.target = this.targetObject3;        
+  this.spotLight3.shadow.mapSize.width = 1024;
+  this.spotLight3.shadow.mapSize.height = 1024;
+  this.spotLight3.shadow.camera.near = 500;
+  this.spotLight3.shadow.camera.far = 4000;
+  this.spotLight3.shadow.camera.fov = 30;
+  scene.add(this.spotLight3);
+  console.log(this.targetObject3);
+  }
+
+}
+
+class SceneDynamicObject
+{
+
+}
+
+class SceneStationaryObject
+{
+
+}
+
+
+var CarDummy=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(-400,0,50),new GLTFLoader(),'Cars',1,1,0, Math.PI/2,  -2*Math.PI/2, -Math.PI/2);
+
+
+// , },[Math.PI * .5, -2*Math.PI, 0]
+//         [Math.PI * .5, -2*Math.PI, 0], },
+//          [Math.PI * .5, -2*Math.PI, 0], },
+var Avatar=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/knight/KnightCharacter.gltf',new THREE.Vector3(100,500,0),new GLTFLoader(),'Cars',1,1,1 );
+// Avatar.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(0,100,0))
+// CarDummy.Load(1);
+// CarDummy.AddToScene();
+console.log(CarDummy.CarsList);
+console.log(CarDummy.Objects);
+// var CarDummy1=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(150,0,50),[Math.PI, 0, Math.PI * 1.5], new GLTFLoader(),'Cars',2,1 ,0);
+// CarDummy1.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(0,100,0))
+// var CarDummy2=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(600,0,50),[Math.PI * .5, -2*Math.PI, 0], new GLTFLoader(),'Cars',16,1,0);
+// CarDummy2.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(0,100,0))
+var CarDummy1=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(150,0,50),new GLTFLoader(),'Cars',2,1 ,0, Math.PI/2, - 2*Math.PI/2, -Math.PI/2);
+CarDummy1.AddLight(new THREE.Vector3(150,0,50),new THREE.Vector3(150,10,50))
+var CarDummy2=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(600,0,50), new GLTFLoader(),'Cars',16,1,0, Math.PI/2,  Math.PI/2, -Math.PI/2);
+// CarDummy2.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(0,100,0))
+// console.log(CarsList[0]);
+// var Light1=new SceneObjects('https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',new THREE.Vector3(0,0,100), new GLTFLoader(),'Lights',1,1,0);
+// Light1.AddLight(new THREE.Vector3(0,0,100),new THREE.Vector3(100,0,0));
 
 var collidableMeshList = [];
+const CarsList=[CarDummy, CarDummy1];
 
-const scene = new THREE.Scene();
 
 
 function createCamera()
@@ -107,14 +367,7 @@ const manager = new THREE.LoadingManager();
 // const models = {
 //     knight: { url: 'https://threejsfundamentals.org/threejs/resources/models/knight/KnightCharacter.gltf' },
 //   };
-function addLight(...pos) {
-    const color = 0xFFFFFF;
-    const intensity = 1;
-    const light = new THREE.DirectionalLight(color, intensity);
-    light.position.set(...pos);
-    scene.add(light);
-    scene.add(light.target);
-  }
+
 
     // Avatar 
     let avatar = 0;
@@ -128,7 +381,7 @@ function addLight(...pos) {
       root.scale.z =15;
       root.rotation.x = 5*3.14159 / 2;
       avatar = root;
-      scene.add(root);
+      // scene.add(root);
       objects.push(avatar);
     //   const box = new THREE.Box3().setFromObject(root);
 
@@ -143,73 +396,88 @@ function addLight(...pos) {
     });
     
     addLight(-100,-100,100);
-    const cars = [];
-    const headlights = [];
-    const url1 = 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf';
-    gltfLoader.load(url1, (gltf1) => {
-      const root = gltf1.scene;
-      console.log("root", root);
-      // root.scale.x =15;
-      // root.scale.y =15;
-      // root.scale.z =15;
-      root.rotation.x = 5*3.14159 / 2;
-      // avatar = root;
-      // scene.add(root);
-      const loadedCars = root.getObjectByName('Cars');
-      const fixes = [
-        { prefix: 'Car_08', y: 0,  rot: [Math.PI * .5, 0, Math.PI * .5], },
-        { prefix: 'CAR_03', y: 33, rot: [0, -2*Math.PI, 0], },
-        { prefix: 'Car_04', y: 40, rot: [0, -2*Math.PI, 0], },
-      ];
+    // const cars = [];
+    // const headlights = [];
+    // const url1 = 'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf';
+    // gltfLoader.load(url1, (gltf1) => {
+    //   const root = gltf1.scene;
+    //   console.log("root", root);
+    //   // root.scale.x =15;
+    //   // root.scale.y =15;
+    //   // root.scale.z =15;
+    //   root.rotation.x = 5*3.14159 / 2;
+    //   // avatar = root;
+    //   // scene.add(root);
+    //   const loadedCars = root.getObjectByName('Cars');
+    //   const fixes = [
+    //     { prefix: 'Car_08', y: 0,   rot: [Math.PI, 0, Math.PI * 1.5], },
+    //     { prefix: 'CAR_03', y: 33, rot: [Math.PI * .5, -2*Math.PI, 0], },
+    //     { prefix: 'Car_04', y: 40, rot: [Math.PI * .5, -2*Math.PI, 0], },
+    //   ];
       
       
-      var carX=[-400,150,600];
-      var carY=[0,0,0];
-      var carZ=[50,50,50];
-      var index=0;
-        root.updateMatrixWorld();
-        for (const car of loadedCars.children.slice()) {
-          const fix = fixes.find(fix => car.name.startsWith(fix.prefix));
-          const obj = new THREE.Object3D();
-          car.position.set(carX[index], carY[index], carZ[index]);
-          
-          car.rotation.set(...fix.rot);
-          car.rotateX(Math.PI/2)
-          obj.add(car);
-          scene.add(obj);
+    //   var carX=[-400,150,600];
+    //   var carY=[0,0,0];
+    //   var child_carY = [-100,-100,-100];
+    //   var carZ=[50,50,50];
+    //   var index=0;
+    //     root.updateMatrixWorld();
+    //     console.log("tt", loadedCars.children.slice());
+    //     let fcar = [loadedCars.children.slice()[1], loadedCars.children.slice()[2], loadedCars.children.slice()[16]]
+    //     let child_car = [loadedCars.children.slice()[0], loadedCars.children.slice()[4], loadedCars.children.slice()[11]]
+    //     while(index<3) {
+    //       let car = fcar[index];
+    //       let child_fcar = child_car[index];
+    //       const fix = fixes.find(fix => car.name.startsWith(fix.prefix));
+    //       console.log("carrh", car);
+    //       const obj = new THREE.Object3D();
+    //       car.position.set(carX[index], carY[index], carZ[index]);
+    //       child_fcar.position.set(carX[index], child_carY[index], carZ[index]);
+    //       car.rotation.set(...fix.rot);
+    //       child_fcar.rotation.set(...fix.rot);
+    //       // car.scale.set(0.8,0.8, 0.8);
+    //       // child_fcar.scale.set(0.8,0.8, 0.8);
+    //       // car.rotateZ(Math.PI/2);
+    //       // car.rotateY(Math.PI/2);
+    //       obj.add(car);
+    //       scene.add(obj);
+    //       // obj.add(child_fcar);
          
-          const spotLight3 = new THREE.SpotLight( 0xFFFFFF);
-            spotLight3.position.set(carX[index], carY[index], carZ[index]);
+    //         const spotLight3 = new THREE.SpotLight( 0xFFFFFF);
+    //         spotLight3.position.set(carX[index], carY[index], carZ[index]);
 
-            spotLight3.castShadow = true;
-            const targetObject3 = new THREE.Object3D();
-            scene.add(targetObject3);
-            targetObject3.translateX(carX[index]);
-            if(carY[index]=500)
-            {
+    //         spotLight3.castShadow = true;
+    //         const targetObject3 = new THREE.Object3D();
+    //         scene.add(targetObject3);
+    //         targetObject3.translateX(carX[index]);
+    //         if(carY[index]=500)
+    //         {
                 
-                targetObject3.translateY(carY[index]+20);
-            }
-            else
-            {
-                carY[index] *= -1;
-                targetObject3.translateY(carY[index]+20);
-            }
-            targetObject3.translateZ(carZ[index]);
-            spotLight3.target = targetObject3;
+    //             targetObject3.translateY(carY[index]+20);
+    //         }
+    //         else
+    //         {
+    //             carY[index] *= -1;
+    //             targetObject3.translateY(carY[index]+20);
+    //         }
+    //         targetObject3.translateZ(carZ[index]);
+    //         spotLight3.target = targetObject3;
             
-            spotLight3.shadow.mapSize.width = 1024;
-            spotLight3.shadow.mapSize.height = 1024;
+    //         spotLight3.shadow.mapSize.width = 1024;
+    //         spotLight3.shadow.mapSize.height = 1024;
 
-            spotLight3.shadow.camera.near = 500;
-            spotLight3.shadow.camera.far = 4000;
-            spotLight3.shadow.camera.fov = 30;
-            index=index+1;
-            scene.add(spotLight3);
-            headlights.push(spotLight3);
-            cars.push(obj, spotLight3);
-        }
-        });
+    //         spotLight3.shadow.camera.near = 500;
+    //         spotLight3.shadow.camera.far = 4000;
+    //         spotLight3.shadow.camera.fov = 30;
+    //         index=index+1;
+    //         // scene.add(spotLight3);
+    //         headlights.push(spotLight3);
+    //         cars.push(obj, spotLight3);
+            
+    //         collidableMeshList.push(obj);
+    //         // collidableMeshList.push(child_fcar);
+    //     }
+    //     });
           // car.rotation.x = 5*3.14
 
     const lights = [];
@@ -284,44 +552,27 @@ function addLight(...pos) {
         lights.push(obj);
       }
     });
-    const spotLight = new THREE.SpotLight( 0xFFFFFF);
-    spotLight.position.set( -100, 200,100 );
+//     const spotLight = new THREE.SpotLight( 0xFFFFFF);
+//     spotLight.position.set( -100, 200,100 );
 
-    spotLight.castShadow = true;
-    const targetObject = new THREE.Object3D();
-    scene.add(targetObject);
-    targetObject.translateX(-100);
-    targetObject.translateY(200);
-    targetObject.translateZ(0)
-    spotLight.target = targetObject;
+//     spotLight.castShadow = true;
+//     const targetObject = new THREE.Object3D();
+//     scene.add(targetObject);
+//     targetObject.translateX(-100);
+//     targetObject.translateY(200);
+//     targetObject.translateZ(0)
+//     spotLight.target = targetObject;
     
-    spotLight.shadow.mapSize.width = 1024;
-    spotLight.shadow.mapSize.height = 1024;
+//     spotLight.shadow.mapSize.width = 1024;
+//     spotLight.shadow.mapSize.height = 1024;
 
-    spotLight.shadow.camera.near = 500;
-    spotLight.shadow.camera.far = 4000;
-    spotLight.shadow.camera.fov = 30;
+//     spotLight.shadow.camera.near = 500;
+//     spotLight.shadow.camera.far = 4000;
+//     spotLight.shadow.camera.fov = 30;
 
-scene.add( spotLight );
-const spotLight1 = new THREE.SpotLight( 0xFFFFFF);
-spotLight1.position.set( 0,-200,100 );
+// scene.add( spotLight );
 
-spotLight1.castShadow = true;
-const targetObject1 = new THREE.Object3D();
-scene.add(targetObject1);
-targetObject1.translateX(0);
-targetObject1.translateY(-220);
-targetObject1.translateZ(0);
-spotLight1.target = targetObject1;
 
-spotLight1.shadow.mapSize.width = 1024;
-spotLight1.shadow.mapSize.height = 1024;
-
-spotLight1.shadow.camera.near = 500;
-spotLight1.shadow.camera.far = 4000;
-spotLight1.shadow.camera.fov = 20;
-
-scene.add( spotLight1 );
 const skyColor = 0xB1E1FF;  // light blue
     const groundColor = 0xB97A20;  // brownish orange
     const intensity = 1;
@@ -404,40 +655,42 @@ function check_collision()
 
     for(let i = 0; i < collidableMeshList.length; i++)
     {
-          for(let j=0; j<objects.length;j++)
+          for(let j=1; j<objects.length;j++)
           {
             let temp_obj_1_bbox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
             temp_obj_1_bbox.setFromObject(collidableMeshList[i]);
-
+            
             let temp_obj_2_bbox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
             temp_obj_2_bbox.setFromObject(objects[j]);
-            
+            console.log("mmmm",temp_obj_1_bbox,i, temp_obj_2_bbox, j);
             let is_collision = temp_obj_1_bbox.intersectsBox(temp_obj_2_bbox)
-            // console.log("Intersection:", is_collision);
+            console.log("Intersection:", is_collision);
 
             if(is_collision)
             {
+              console.log("januuuu", "cl",i, "obj", j);
               num_collisions ++ ;
             }
           }
     }
 
 
-    for(let i = 0; i < objects.length ; i++)
+    for(let i = 1; i < objects.length ; i++)
     {
-          for(let j=0; j<objects.length && i!=j;j++)
+          for(let j=1; j<objects.length && i!=j;j++)
           {
             let temp_obj_1_bbox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
             temp_obj_1_bbox.setFromObject(objects[i]);
 
             let temp_obj_2_bbox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
             temp_obj_2_bbox.setFromObject(objects[j]);
-            
+            console.log("mmnnn",temp_obj_1_bbox,objects[i], temp_obj_2_bbox, objects[j]);
             let is_collision = temp_obj_1_bbox.intersectsBox(temp_obj_2_bbox)
-            // console.log("Intersection:", is_collision);
+            console.log("Intersection:", is_collision);
 
             if(is_collision)
             {
+              console.log("januuuu", "ob",i, "obj", j);
               num_collisions ++ ;
             }
           }
@@ -464,47 +717,63 @@ window.addEventListener("keydown", function(eee){
     {
       case 39: // Right
         avatar.translateX(5);
+        // MovingCube.translateX(5);
         console.log("pos", avatar.position);
         
         // BB check
         if(check_collision())
         {
           avatar.translateX(-5);
+          // console.log("balalalalala");
         }
         
         break;
-
+      case 84: //turn
+        // const quaternion = new THREE.Quaternion();
+        // quaternion.setFromAxisAngle( new THREE.Vector3( 0, 0, 1 ), 0.1 );
+        // MovingCube.translateY(5);
+        // MovingCube1.(-1);
+        // MovingCube2.rotateZ(-1);
+        // const vector = MovingCube.position;
+        // vector.applyQuaternion( quaternion );
+          // MovingCube.rotateZ(0.1);
+          // MovingCube.translateY(10);
+          break;
       case 40:  // Near 
-            avatar.translateZ(5);
+            avatar.translateZ(-5);
+            // MovingCube.translateY(-5);
             console.log("pos", avatar.position);
 
             // BB check
-            if(check_collision())
-            {
-              avatar.translateZ(-5);
-            }
+            // if(check_collision())
+            // {
+            //   avatar.translateZ(-5);
+            // }
         break;
 
       case 37:  // Left
             avatar.translateX(-5);
+            // MovingCube.translateX(-5);
             console.log("pos", avatar.position);
 
             // BB check
-            if(check_collision())
-            {
-              avatar.translateX(5);
-            }
+            // if(check_collision())
+            // {
+            //   avatar.translateX(5);
+            // }
         break;
 
       case 38:  // Far
-            avatar.translateZ(-5);
+            console.log("janviii", avatar.position);
+            avatar.translateZ(5);
+            // MovingCube.translateY(5);
             console.log("pos", avatar.position);
 
             // BB check
-            if(check_collision())
-            {
-              avatar.translateZ(5);
-            }
+            // if(check_collision())
+            // {
+            //   avatar.translateY(5);
+            // }
         break;
     }
 
@@ -521,7 +790,7 @@ function animate()
 
 }
 let k=1;
-function render(time)
+function render()
 {
 	if (resizeRendererToDisplaySize(renderer)) 
 	{
@@ -542,16 +811,46 @@ function update()
     
     if(car.position.y >= 500)
     {
-      k=-1;
-    }
+         car.AddLight(car.Object.position, {x:car.Object.position.x, y:car.Object.position.y+10, z: car.Object.position.z})
+        
+        if(car.Object.position.y >= 500)
+        {
+            k=-1;
+        }
 
-    else if(car.position.y <= -500)
+        else if(car.Object.position.y <= -500)
+        {
+            k=1;
+        }
+        car.Object.translateZ(k*10);
+    }
+});
+if(CarDummy2.flag==1)
     {
-      k=1;
+      CarDummy2.AddLight(CarDummy2.Object.position, {x:CarDummy2.Object.position.x, y:CarDummy2.Object.position.y+10, z: CarDummy2.Object.position.z})  
+      console.log("lala",CarDummy2.Object.position);
+        if(CarDummy2.Object.position.y >= 500)
+        {
+            k=-1;
+        }
+
+        else if(CarDummy2.Object.position.y <= -500)
+        {
+            k=1;
+        }
+        CarDummy2.Object.translateX(k*10);
+    }
+    // console.log(CarDummy.Object.position);
+    // CarDummy.Rotate(0,0,Math.PI/2);
+    if (resizeRendererToDisplaySize(renderer)) 
+    {
+        const canvas = renderer.domElement;
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
     }
     car.translateY(k*10);
     // headlight.position.set(car.position);
-  });
+  // });
 
     controls.update();
 }
