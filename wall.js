@@ -349,7 +349,7 @@ var wallMaterial = new THREE.MeshBasicMaterial( {color: 0x8888ff} );
 var wireMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, wireframe:true } );
 
 var wall_mesh1 = new THREE.Mesh(wallGeometry, wallMaterial);
-wall_mesh1.position.set(0, 550, 40);
+wall_mesh1.position.set(100, 400, 40);
 wall_mesh1.rotation.x = 3.14159 / 2;
 wall_mesh1.geometry.computeBoundingBox();
 var wall1BBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
@@ -609,7 +609,135 @@ const skyColor = 0xB1E1FF;  // light blue
 
 // // keyboard
 // var keyboard = new THREEx.KeyboardState();
+function uv_spherical(geometry,buildingMesh){
+	geometry.computeBoundingBox();
 
+	var max = geometry.boundingBox.max;
+	var min = geometry.boundingBox.min;
+  
+	var offset = new THREE.Vector3(0 - min.x, 0 - min.y, 0-min.z);
+	var range = new THREE.Vector3(max.x - min.x, max.y - min.y, max.z - min.z);
+	// console.log(geometry.attributes);
+	// console.log(geometry.attributes.uv);
+	var faces = geometry.faces;
+	var positions = Array.from(geometry.attributes.position.array);
+	  var uvAttribute = geometry.attributes.uv;
+
+	for (var i = 0; i < positions.length / 3; i++) {
+		var x = positions[i * 3];
+		var y = positions[i * 3 + 1];
+		var z = positions[i * 3 + 2];
+		x = (x+offset.x)/range.x;
+		y = (y+offset.y)/range.y;
+		z = (z+offset.z)/range.z;
+		var U = uvAttribute.getX( i );
+		var V = uvAttribute.getY( i );
+
+		U =  0.5 - Math.atan2(z, x) / (Math.PI*2) ;
+		V = 0.5 - Math.asin(y) / Math.PI;
+		
+		
+		// U = z;
+		// V = y;
+		console.log(x, y, z, U, V);
+		uvAttribute.setXY( i, U, V );
+	}
+	geometry.uvsNeedUpdate = true;
+	uvAttribute.needsUpdate = true;
+	buildingMesh.material.needsUpdate = true;
+	// console.log(geometry.attributes.uv.array);
+}
+
+function uv_planar(geometry,buildingMesh){
+	geometry.computeBoundingBox();
+
+	var max = geometry.boundingBox.max;
+	var min = geometry.boundingBox.min;
+  
+	var offset = new THREE.Vector3(0 - min.x, 0 - min.y, 0-min.z);
+	var range = new THREE.Vector3(max.x - min.x, max.y - min.y, max.z - min.z);
+	console.log(geometry.attributes);
+	console.log(geometry.attributes.uv);
+	var faces = geometry.faces;
+	var positions = Array.from(geometry.attributes.position.array);
+	var uvAttribute = geometry.attributes.uv;
+
+	for (var i = 0; i < positions.length / 3; i++) {
+		var x = positions[i * 3];
+		var y = positions[i * 3 + 1];
+		var z = positions[i * 3 + 2];
+		x = (x+offset.x)/range.x;
+		y = (y+offset.y)/range.y;
+		z = (z+offset.z)/range.z;
+		var U = uvAttribute.getX( i );
+		var V = uvAttribute.getY( i );
+
+		// U =  0.5 - Math.atan2(z, x) / (Math.PI*2) ;
+		// V = 0.5 - Math.asin(y) / Math.PI;
+		
+		
+		U = z;
+		V = y;
+		console.log(x, y, z, U, V);
+		uvAttribute.setXY( i, U, V );
+	}
+
+
+	geometry.uvsNeedUpdate = true;
+	uvAttribute.needsUpdate = true;
+	buildingMesh.material.needsUpdate = true;
+	console.log(geometry.attributes.uv.array);  
+}
+
+	var materialArray = [];
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( './dawnmountain-xpos.png' ) }));
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( './dawnmountain-xneg.png' ) }));
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( './dawnmountain-ypos.png' ) }));
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( './dawnmountain-yneg.png' ) }));
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( './dawnmountain-zpos.png' ) }));
+	materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( './dawnmountain-zneg.png' ) }));
+	for (var i = 0; i < 6; i++)
+	   materialArray[i].side = THREE.BackSide;
+	var skyboxMaterial = new THREE.MeshFaceMaterial( materialArray );
+	var skyboxGeom = new THREE.BoxGeometry( 5000, 5000, 5000, 1, 1, 1 );
+  var skybox = new THREE.Mesh( skyboxGeom, skyboxMaterial );
+  scene.add( skybox );
+  skybox.rotateX(Math.PI/2);
+
+  const Texture_loader = new THREE.TextureLoader();
+  var radius = 8;
+  var height = 7;
+  var geometry = new THREE.CylinderGeometry(0, radius, height, 4, 1)
+  var py_texture= Texture_loader.load('./wood-lighthouse.jpg');
+  geometry.uvsNeedUpdate = true;
+  const py_material= new THREE.MeshPhongMaterial({
+      map : py_texture,
+      side : THREE.DoubleSide,
+  });
+  // var Material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+  // var material = new THREE.MeshNormalMaterial();
+  var pyramid = new THREE.Mesh(geometry, py_material);
+  uv_spherical(geometry,pyramid);
+  scene.add(pyramid);
+  pyramid.position.set(0,-100,620);
+  pyramid.scale.set(10,10,10);
+  pyramid.rotateX(Math.PI/2);
+  var cy_geometry = new THREE.CylinderGeometry(30, 30, 600, 32)
+  // var cy_material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+  
+  var cy_texture= Texture_loader.load('./janvi.jpg');
+    cy_geometry.uvsNeedUpdate = true;
+    const cy_material= new THREE.MeshPhongMaterial({
+        map : cy_texture,
+        side : THREE.DoubleSide,
+    });
+	
+    var cylinder = new THREE.Mesh(cy_geometry, cy_material);
+  // uv_planar(cy_geometry,cylinder);
+  uv_planar(cy_geometry,cylinder);
+  scene.add(cylinder);
+  cylinder.position.set(0,-100,300);
+  cylinder.rotateX(Math.PI/2);
 console.log(MovingCube.geometry.attributes.position.count);
 
 function resizeRendererToDisplaySize(renderer) 
@@ -909,7 +1037,7 @@ let Dynamic_obj = [];
 Dynamic_obj.push(CarDummy);
 Dynamic_obj.push(CarDummy1);
 Dynamic_obj.push(CarDummy2);
-Dynamic_obj.push(Avatar);
+
 function update()
 { 
   MovableObj.forEach(car => {
@@ -935,12 +1063,9 @@ function update()
     if(is_colliding)
     {
       // car.is_moving = false;
-      // car.k *=-1;
+      car.k *=-1;
     }
-    else
-    {
-      car.is_moving = true;
-    }
+
 
   })
 
@@ -969,9 +1094,6 @@ function update()
 
       }
   });
-
-
-
 
   if(CarDummy2.flag==1)
       {
