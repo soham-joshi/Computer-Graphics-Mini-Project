@@ -14,7 +14,7 @@ const scene = new THREE.Scene();
 // cameraFixed.position.set(100, 400, 600);
 // cameraFixed.up.set(0, 0, 1);
 // cameraFixed.lookAt(0, 0, 0);
-var CameraAngle=0,cameraDroneAngle=0;
+var CameraAngle=0,cameraDroneAngle=0,textureToggle=0,CarDummyLightFlag=0,CarDummy2LightFlag=1;
 var CameraDroneLookAtPosition=new THREE.Vector3();
 var camera_mode=2;
 var postitionVector= new THREE.Vector3();
@@ -79,6 +79,7 @@ class SceneObjects
 {
   constructor(url,position,glftLoader,Name,index,Loadarg,AvatarFlag,x,y,z,parent,child_flag)
   {
+
     this.AvatarFlag=AvatarFlag;
     this.hasLight=0;
     this.url=url;
@@ -94,6 +95,7 @@ class SceneObjects
     this.k=1;
     this.child_flag = child_flag;
     this.is_moving = true;
+    this.LightToggle=0;
   // this.glftLoader=glftLoader;
   // console.log( this.glftLoader);
 //   this.CarsList=[];
@@ -113,7 +115,8 @@ class SceneObjects
     this.targetObject3.position.set(this.TargetPosition.x,this.TargetPosition.y,this.TargetPosition.z);
     scene.add(this.targetObject3);
     this.spotLight3.target = this.targetObject3;  
-    // this.spotLight3.penumbra = 0.5;      
+    // this.spotLight3.penumbra = 0.5; 
+    this.intensity=intensity;     
     this.spotLight3.intensity = intensity;
     this.spotLight3.shadow.mapSize.width = 1024;
     this.spotLight3.shadow.mapSize.height = 1024;
@@ -124,6 +127,7 @@ class SceneObjects
     scene.add(this.spotLight3);
   // console.log("tiger",this.targetObject3.position); 
   }
+
 
   Load(flag)
   {
@@ -236,6 +240,21 @@ class SceneObjects
   {
       return this.Objects;
   }
+
+  SwitchLight()
+    {
+    if (this.LightToggle==1)
+      {
+      this.LightToggle=0;
+      this.spotLight3.intensity=this.intensity;
+      }
+    else
+      {
+      this.LightToggle=1;
+      this.spotLight3.intensity=0;
+      }
+        
+    }
 
 }
 
@@ -640,7 +659,7 @@ function uv_spherical(geometry,buildingMesh){
 		
 		// U = z;
 		// V = y;
-		console.log(x, y, z, U, V);
+		// console.log(x, y, z, U, V);
 		uvAttribute.setXY( i, U, V );
 	}
 	geometry.uvsNeedUpdate = true;
@@ -657,8 +676,8 @@ function uv_planar(geometry,buildingMesh){
   
 	var offset = new THREE.Vector3(0 - min.x, 0 - min.y, 0-min.z);
 	var range = new THREE.Vector3(max.x - min.x, max.y - min.y, max.z - min.z);
-	console.log(geometry.attributes);
-	console.log(geometry.attributes.uv);
+	// console.log(geometry.attributes);
+	// console.log(geometry.attributes.uv);
 	var faces = geometry.faces;
 	var positions = Array.from(geometry.attributes.position.array);
 	var uvAttribute = geometry.attributes.uv;
@@ -679,7 +698,7 @@ function uv_planar(geometry,buildingMesh){
 		
 		U = z;
 		V = y;
-		console.log(x, y, z, U, V);
+		// console.log(x, y, z, U, V);
 		uvAttribute.setXY( i, U, V );
 	}
 
@@ -709,7 +728,7 @@ function uv_planar(geometry,buildingMesh){
   var radius = 8;
   var height = 7;
   var geometry = new THREE.CylinderGeometry(0, radius, height, 4, 1)
-  var py_texture= Texture_loader.load('./wood-lighthouse.jpg');
+  var py_texture= Texture_loader.load('./blender_models/wood-lighthouse.jpg');
   geometry.uvsNeedUpdate = true;
   const py_material= new THREE.MeshPhongMaterial({
       map : py_texture,
@@ -726,7 +745,7 @@ function uv_planar(geometry,buildingMesh){
   var cy_geometry = new THREE.CylinderGeometry(30, 30, 600, 32)
   // var cy_material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
   
-  var cy_texture= Texture_loader.load('./janvi.jpg');
+  var cy_texture= Texture_loader.load('./blender_models/roof.jpg');
     cy_geometry.uvsNeedUpdate = true;
     const cy_material= new THREE.MeshPhongMaterial({
         map : cy_texture,
@@ -807,84 +826,7 @@ MovableObj.push(CarDummy1);
 // MovableObj.push(Child_CarDummy);
 
 
-// collidableMeshList.push(CarDummy.Object);
-// collidableMeshList.push(CarDummy1.Object);
-// collidableMeshList.push(CarDummy2.Object);
-// var coll_mode = 1;
-// function check_collision()
-// {
-//     let num_collisions = 0;
 
-//     MovableObj.forEach(obj => {
-    
-         
-//             let temp_obj_1_bbox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-//             temp_obj_1_bbox.setFromObject(obj.Object);
-            
-//             let temp_obj_2_bbox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-//             temp_obj_2_bbox.setFromObject(Avatar.Object);
-//             console.log("mmmm",temp_obj_1_bbox,obj, temp_obj_2_bbox);
-//             let is_collision = temp_obj_1_bbox.intersectsBox(temp_obj_2_bbox)
-//             console.log("Intersection:", is_collision);
-
-//             if(is_collision)
-//             {
-//               console.log("januuuu", "cl",obj);
-//               if(coll_mode == 1){
-//                 obj.k *= -1;
-//               }
-//               else
-//               {
-//                 // Avatar.Object.position.set({x:obj.Object.position.x, y:obj.Object.position.y, z: obj.Object.position.z+100});
-//                 Avatar.Object.translateZ(5);
-//                 Avatar.Object.rotateY(Math.PI/2);
-//                 Avatar.Object.translateX(-20);
-//                 obj.Object.add(Avatar.Object);
-//               }
-              
-//               num_collisions ++ ;
-      
-//           }
-//     });
-
-
-//     // for(let i = 1; i < objects.length ; i++)
-//     // {
-//     //       for(let j=1; j<objects.length && i!=j;j++)
-//     //       {
-//     //         let temp_obj_1_bbox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-//     //         temp_obj_1_bbox.setFromObject(objects[i]);
-
-//     //         let temp_obj_2_bbox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-//     //         temp_obj_2_bbox.setFromObject(objects[j]);
-//     //         console.log("mmnnn",temp_obj_1_bbox,objects[i], temp_obj_2_bbox, objects[j]);
-//     //         let is_collision = temp_obj_1_bbox.intersectsBox(temp_obj_2_bbox)
-//     //         console.log("Intersection:", is_collision);
-
-//     //         if(is_collision)
-//     //         {
-//     //           console.log("januuuu", "ob",i, "obj", j);
-//     //           num_collisions ++ ;
-//     //         }
-//     //       }
-//     // }
-
-    
-//     // num_collisions -=2; // For walls with ground
-//     // num_collisions -=1; // For avatar and ground
-//     // console.log("Collisions: ", num_collisions);
-//     if(num_collisions >=1)
-//     {
-//       return true;
-//     }
-//     else
-//     {
-//       return false;
-//     }
-// }
-
-// A list of objects which can collide with the avatar
-// let collidableMeshList = []
 
 function check_dist_betweenBB(BB1, BB2)
 {
@@ -983,7 +925,34 @@ window.addEventListener("keydown", function(eee){
 
     switch(eee.keyCode)
     {
-        case 67:  // camera mode change 
+      case 70:
+      StreetLight.SwitchLight();
+      break;
+
+      case 71:
+      if (CarDummyLightFlag==1 )
+        {
+        CarDummyLightFlag=0;
+        }
+      else
+        {
+          CarDummyLightFlag=1;
+        }
+      break;
+      case 72:
+      if (CarDummy2LightFlag==1 )
+        {
+        CarDummy2LightFlag=0;
+        }
+      else
+        {
+        CarDummy2LightFlag=1;
+        }
+
+        
+      break;
+
+      case 67:  // camera mode change 
       camera_mode=camera_mode+1;
       camera_mode=camera_mode%4;
       break;
@@ -993,7 +962,7 @@ window.addEventListener("keydown", function(eee){
         console.log("pos", avatar.position);
         
         break;
-      case 82:
+      case 69:
             if (camera_mode==2)
                 {
                 Avatar.Rotate(0,0.05,0);
@@ -1005,7 +974,7 @@ window.addEventListener("keydown", function(eee){
                 cameraDroneAngle+=0.05
                 }
         break;
-      case 84: //turn
+      case 82: //turn
         if (camera_mode==2)
             {
             Avatar.Rotate(0,-0.05,0);
@@ -1020,7 +989,7 @@ window.addEventListener("keydown", function(eee){
       case 40:  // Near 
             if (camera_mode==2)
                 {
-                Avatar.Object.translateZ(5);
+                Avatar.Object.translateZ(-5);
   // MovingCube.translateY(-5);
                 console.log("pos", avatar.position);  
                 }
@@ -1043,12 +1012,26 @@ window.addEventListener("keydown", function(eee){
             console.log("pos", avatar.position);
 
         break;
-
+      case 84:
+        if (textureToggle==1)
+            {
+            textureToggle=0;
+            console.log("Texture changed")
+            uv_spherical(geometry,pyramid);
+            uv_spherical(cy_geometry,cylinder);
+            }
+        else
+            {
+            textureToggle=1;
+            uv_planar(geometry,pyramid);
+            uv_planar(cy_geometry,cylinder);
+            }
+        break;
       case 38:  // Far
             // console.log("janviii", avatar.position);
             if (camera_mode==2)
                 {
-                Avatar.Object.translateZ(-5);
+                Avatar.Object.translateZ(5);
                 }
             else if (camera_mode==1)
                 {
@@ -1072,6 +1055,7 @@ window.addEventListener("keydown", function(eee){
           // Jump mode
           console.log("Jump avatar jump");
           avatar_jump();
+
           break;
 
         case "u":
@@ -1088,7 +1072,8 @@ function avatar_jump()
 {
   scene.remove(Avatar.Object);
   CarDummy2.Object.add(Avatar.Object);
-  Avatar.Object.position.set(-50,0,-60);
+  Avatar.Object.position.set(-50,0,-50);
+  cameraAvatar.position.set(CarDummy2.Object.position.x-50,CarDummy2.Object.position.y,CarDummy2.Object.position.z-40);
   Avatar.Object.rotateX(Math.PI);
 }
 function avatar_ujump()
@@ -1096,6 +1081,7 @@ function avatar_ujump()
   CarDummy2.Object.remove(Avatar.Object);
   scene.add(Avatar.Object);
   Avatar.Object.position.set(-120,0,0);
+  cameraAvatar.position.set(-120,0,0);
   Avatar.Object.rotateX(Math.PI);
 }
 
@@ -1157,8 +1143,14 @@ function update()
     CarsList.forEach(car => {
       if(car.flag==1)
       {
-           car.AddLight(car.Object.position, {x:car.Object.position.x, y:car.Object.position.y+10, z: car.Object.position.z}, Math.PI/4,1);
-
+            if (CarDummyLightFlag==1)
+              {
+              car.AddLight(car.Object.position, {x:car.Object.position.x, y:car.Object.position.y+10, z: car.Object.position.z}, Math.PI/4,1);
+              }
+            else
+              {
+              car.spotLight3.intensity=0;
+              }
             if(car.Object.position.y >= 500)
             {
               car.k=-1;
@@ -1180,12 +1172,20 @@ function update()
 
   if(CarDummy2.flag==1)
       {
-        CarDummy2.AddLight(pyramid.position, {x:CarDummy2.Object.position.x, y:CarDummy2.Object.position.y, z: CarDummy2.Object.position.z}, Math.PI/24,2);  
-        // console.log("lala",CarDummy2.Object.position);
+        if (CarDummy2LightFlag==1)
+          {
+          CarDummy2.AddLight(pyramid.position, {x:CarDummy2.Object.position.x, y:CarDummy2.Object.position.y, z: CarDummy2.Object.position.z}, Math.PI/24,2);  
+          }
+        else
+          {
+          CarDummy2.spotLight3.intensity=0;
+          }
+          // console.log("lala",CarDummy2.Object.position);
           if(CarDummy2.Object.position.y >= 500)
           {
               CarDummy2.k=-1;
           }
+    
   
           else if(CarDummy2.Object.position.y <= -500)
           {
