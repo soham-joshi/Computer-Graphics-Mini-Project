@@ -6,7 +6,7 @@ const renderer = new THREE.WebGLRenderer({canvas});
 const scene = new THREE.Scene();
 
 
-var CameraAngle=0,cameraDroneAngle=0,textureToggle=0,CarDummyLightFlag=0,CarDummy2LightFlag=1,Jump_flag=1;
+var CameraAngle=0,cameraDroneAngle=0,textureToggle=0,CarDummyLightFlag=0,CarDummy2LightFlag=1,Jump_flag=1,OnetimeFlag=0;
 var CameraDroneLookAtPosition=new THREE.Vector3();
 var camera_mode=2;
 var postitionVector= new THREE.Vector3();
@@ -286,7 +286,7 @@ var Child_CarDummy=new SceneObjects( 'https://threejsfundamentals.org/threejs/re
 
 
 
-var Avatar=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/knight/KnightCharacter.gltf',new THREE.Vector3(100,500,0),new GLTFLoader(),'Cars',1,1,1 );
+var Avatar=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/knight/KnightCharacter.gltf',new THREE.Vector3(-120,0,0),new GLTFLoader(),'Cars',1,1,1 );
 
 console.log(CarDummy.CarsList);
 console.log(CarDummy.Objects);
@@ -852,15 +852,20 @@ window.addEventListener("keydown", function(eee){
     {
         case "j":
           // Jump mode
-          console.log("Jump avatar jump");
-          avatar_jump();
-
+          if(Jump_flag!=0)
+            {
+            console.log("Jump avatar jump");
+            avatar_jump();
+            }
           break;
 
         case "u":
           // Jump mode
-          console.log("UnJump avatar jump");
-          avatar_ujump();
+          if(Jump_flag!=1)
+            {
+            console.log("UnJump avatar jump");
+            avatar_ujump();
+            }
           break;
     }
 
@@ -871,18 +876,26 @@ function avatar_jump()
 {
   scene.remove(Avatar.Object);
   CarDummy2.Object.add(Avatar.Object);
+  // Avatar.rotateX(Math.PI);
   Avatar.Object.position.set(-50,0,-50);
   Jump_flag=0;
   // cameraAvatar.position.set(CarDummy2.Object.position.x-50,CarDummy2.Object.position.y,CarDummy2.Object.position.z-40);
   Avatar.Object.rotateX(Math.PI);
+  // Avatar.Object.rotateY(Math.PI);
 }
 function avatar_ujump()
 {
   Jump_flag=1;
+  // Avatar.Object.rotateY( -1*Math.PI/2);
+  // var Avatar_temp
   CarDummy2.Object.remove(Avatar.Object);
+  // Avatar=new SceneObjects( 'https://threejsfundamentals.org/threejs/resources/models/knight/KnightCharacter.gltf',new THREE.Vector3(-120,0,0),new GLTFLoader(),'Cars',1,1,1 );
   scene.add(Avatar.Object);
   Avatar.Object.position.set(-120,0,0);
-  cameraAvatar.position.set(-120,0,0);
+  // Avatar.Object.rotation=new THREE.Vector3(0,0,0);
+  Avatar.Object.rotateY( -1*Math.PI/2);
+  
+  // cameraAvatar.position.set(-120,0,0);
   Avatar.Object.rotateX(Math.PI);
 }
 
@@ -895,8 +908,7 @@ function animate()
 
 }
 
-	
-
+// cameraAvatar.position.set(0,0,40);
 let Dynamic_obj = [];
 Dynamic_obj.push(CarDummy);
 Dynamic_obj.push(CarDummy1);
@@ -904,15 +916,7 @@ Dynamic_obj.push(CarDummy2);
 
 function update()
 { 
-  if (Jump_flag==1)
-  {
-  cameraAvatar.position.set(Avatar.position.x,Avatar.position.y,Avatar.position.z);
-  }
-else
-  {
-  cameraAvatar.position.set(CarDummy2.Object.position.x+Avatar.position.x,CarDummy2.Object.position.y+Avatar.position.y,CarDummy2.Object.position.z+ Avatar.position.z);
-  // AvatarLookAt.z+=CarDummy2.k*10;
-  }
+
 
   MovableObj.forEach(car => {
 
@@ -975,9 +979,31 @@ else
       }
   });
 
-  if(CarDummy2.flag==1)
+  if(CarDummy2.flag==1 && Avatar.flag==1)
       {
-        if (CarDummy2LightFlag==1)
+      
+        if(OnetimeFlag==0)
+          {
+          OnetimeFlag++;
+          Avatar.Object.add(cameraAvatar);
+          cameraAvatar.position.set(0,5,0)
+          console.log(cameraAvatar);
+          }
+        if (Jump_flag==1)
+        {
+        // Avatar.Object.add(cameraAvatar);
+        // Avatar.position.set(0,0,40);
+        // cameraAvatar.position.set(Avatar.position.x,Avatar.position.y,Avatar.position.z);
+        }
+      else
+        {
+        // Avatar.Object.add(cameraAvatar);
+        // Avatar.position.set(0,0,40);
+        // cameraAvatar.position.set(CarDummy2.Object.position.x+Avatar.position.x,CarDummy2.Object.position.y+Avatar.position.y,CarDummy2.Object.position.z+ Avatar.position.z);
+        // AvatarLookAt.z+=CarDummy2.k*10;
+        }
+        
+        if (CarDummy2)
           {
           CarDummy2.AddLight(pyramid.position, {x:CarDummy2.Object.position.x, y:CarDummy2.Object.position.y, z: CarDummy2.Object.position.z}, Math.PI/24,2);  
           }
@@ -995,7 +1021,7 @@ else
               CarDummy2.k=1;
           }
           CarDummy2.Object.translateX(CarDummy2.k*10);
-      }
+      
       if (resizeRendererToDisplaySize(renderer)) 
       {
         //   const canvas = renderer.domElement;
@@ -1020,25 +1046,37 @@ else
     else if (camera_mode==2)
       {
       // cameraAvatar.position.set(Avatar.Object.position.x,Avatar.Object.position.y,Avatar.Object.position.z+75);
+      // console.log(Avatar.Object.rotation);
       AvatarLookAt.x=0;
-      AvatarLookAt.y=-100;
-      AvatarLookAt.z=75;
+      AvatarLookAt.y=-200;
+      AvatarLookAt.z=20;
       cameraAvatar.aspect = canvas.clientWidth / canvas.clientHeight;
       cameraAvatar.up.set(0, 0, 1);
-          
+      // cameraAvatar.postition.set(Avatar.Object.position.x,Avatar.Object.position.y,Avatar.Object.position.z);
       AvatarLookAt=AvatarLookAt.applyAxisAngle( new THREE.Vector3( 0, 0, 1 ),CameraAngle);
-      cameraAvatar.lookAt(Avatar.Object.position.x+AvatarLookAt.x,Avatar.Object.position.y+AvatarLookAt.y,Avatar.Object.position.z+AvatarLookAt.z);
-      console.log(CameraAngle)
-      console.log( AvatarLookAt);
-          // console.log( [avatar.position.x+AvatarLookAt.x,avatar.position.y+AvatarLookAt.y,avatar.position.z+AvatarLookAt.z]);
-      console.log("In the third camera condtion");
+      // console.log(AvatarLookAt);
+      if(Jump_flag==1)
+        {
+        cameraAvatar.lookAt(Avatar.Object.position.x+AvatarLookAt.x,Avatar.Object.position.y +AvatarLookAt.y,Avatar.Object.position.z+AvatarLookAt.z);
+        }
+      else
+        {
+        AvatarLookAt.x=-500;
+        AvatarLookAt.y=400;
+        AvatarLookAt.z=0;
+        AvatarLookAt=AvatarLookAt.applyAxisAngle( new THREE.Vector3( 0, 0, 1 ),CameraAngle);
+        cameraAvatar.lookAt(CarDummy2.Object.position.x+Avatar.Object.position.x+AvatarLookAt.x,Avatar.Object.position.y+CarDummy2.Object.position.y +AvatarLookAt.y,Avatar.Object.position.z+CarDummy2.Object.position.z+AvatarLookAt.z);  
+        }
+        console.log(Avatar.Object.position);
+      console.log(Avatar.Object.position.x+AvatarLookAt.x,Avatar.Object.position.y +AvatarLookAt.y,Avatar.Object.position.z+AvatarLookAt.z)
+
       renderer.render(scene, cameraAvatar);
       }
     else 
       {
         renderer.render(scene, cameraOrbit); 
       }
-
+    }
     controls.update();
 
 }
